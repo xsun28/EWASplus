@@ -1,0 +1,9 @@
+data/
+logs/
+models/
+*.csv
+*.txt
+*.xlsx
+tensor_logs/
+tensor_model/
+
