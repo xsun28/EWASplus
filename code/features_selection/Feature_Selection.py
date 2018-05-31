@@ -13,8 +13,8 @@ from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import ExtraTreesClassifier,RandomForestClassifier
 from sklearn.feature_selection import mutual_info_classif,SelectKBest,f_classif,SelectFromModel
-import CorrFeatureSelector as cfs
-import reduce_vif as rv
+from features_selection import CorrFeatureSelector as cfs
+from features_selection import reduce_vif as rv
 from functools import partial
 import xgboost as xgb
 import itertools

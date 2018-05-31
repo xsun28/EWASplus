@@ -11,13 +11,15 @@ import numpy as np
 import re
 import os
 import sys
-sys.path.append('/home/ec2-user/CpGPython/code/')
-import get_winid
+from common import commons
+home = commons.home
+extra_storage = commons.extra_storage
+from features_preprocess import get_winid
 
 ############################################################
 class BED_binning(object):
     
-    def __init__(self,data_type='ATAC',data_dir='/home/ec2-user/extra_storage/CpG_EWAS/ATAC/',output='/home/ec2-user/CpGPython/data/ATAC_H5S',win_path='/home/ec2-user/CpGPython/data/wins.txt',chrs=np.arange(1,23,dtype='int64')):
+    def __init__(self,data_type='ATAC',data_dir=extra_storage+'ATAC/',output=home+'data/ATAC_H5S',win_path=home+'data/wins.txt',chrs=np.arange(1,23,dtype='int64')):
         self.data_dir = data_dir
         self.output = output
         self.win_path = win_path

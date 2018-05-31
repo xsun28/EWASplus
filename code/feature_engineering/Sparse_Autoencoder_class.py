@@ -13,10 +13,12 @@ from sklearn.base import BaseEstimator,TransformerMixin
 from functools import partial
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from datetime import datetime
+from common import commons
+home = commons.home
 
 class sparse_autoencoder(BaseEstimator,TransformerMixin):
 
-    def __init__(self,home='/home/ec2-user/CpGPython/',**params):
+    def __init__(self,home=home,**params):
         self.params = params
         self.model_path = home+'tensor_model/sparse_autoencoder.ckpt'
         self.root_log_dir = home+'tensor_logs/'

@@ -1,10 +1,11 @@
 #! /usr/bin/Rscript
 # pos_winid<-read.table('/Users/Xiaobo/Jobs/CpG/pos_winid.csv',header =FALSE)
 # neg_winid<-read.table('/Users/Xiaobo/Jobs/CpG/neg_winid.csv',header=FALSE)
+home <- '/home/ec2-user/git/EnsembleCpG/data/'
 args = commandArgs(trailingOnly=TRUE)
 dataset = paste(args[1],'/',sep='')
-all_sites_winid<-read.table(paste('/home/ec2-user/CpGPython/data/',dataset,'selected_pos_winid.csv',sep=''),header=FALSE)
-dir <- '/home/ec2-user/CpGPython/data/features/'
+all_sites_winid<-read.table(paste(home,dataset,'selected_pos_winid.csv',sep=''),header=FALSE)
+dir <- paste(home,'features/',sep='')
 
 files <- list.files(dir,".*adjust.rda$")
 

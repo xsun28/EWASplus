@@ -8,17 +8,18 @@ Created on Thu Feb 22 15:12:33 2018
 
 import pandas as pd
 import numpy as np
-import sys
-sys.path.append('/home/ec2-user/CpGPython/code/')
-import get_winid
+from common import commons
+home = commons.home
+extra_storage = commons.extra_storage
+from features_preprocess import get_winid
 import pysam
 ################################################################
 
 class DANN_Preprocess(object):
     
-    def __init__(self,data_dir = '/home/ec2-user/extra_storage/CpG_EWAS/DANN/',
-                 sites_file = '/home/ec2-user/CpGPython/data/all_sites_winid.csv',
-                 additional_feature_file = '/home/ec2-user/CpGPython/data/features/addtional_features'):
+    def __init__(self,data_dir = extra_storage+'DANN/',
+                 sites_file = home+'data/all_sites_winid.csv',
+                 additional_feature_file = home+'data/features/addtional_features'):
         self.data_dir = data_dir
         self.sites_file = sites_file
         self.additional_feature_file = additional_feature_file
