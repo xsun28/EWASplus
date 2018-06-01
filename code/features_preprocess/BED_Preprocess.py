@@ -28,7 +28,7 @@ class BED_Preprocessing(object):
         all_sites = pd.read_csv(self.sites_file)
         all_sites = get_winid.convert_chr_to_num(all_sites)
         counts_at_targets = pd.DataFrame(all_sites['winid']) #.sort_values(['winid'])
-        if self.data_type == 'ATAC':
+        if self.data_type == 'ATAC' or self.data_type == 'WGBS':
             with pd.HDFStore(self.h5s_file,'r') as h5s:
                 for key in h5s.keys():
                     bed_counts = h5s[key]

@@ -2,7 +2,7 @@
 #install.packages("bigmemory",repos='http://cran.us.r-project.org')
 library(bigmemory)
 source("Script_Appendix.R")
-home <- "/home/ec2-user/CpGPython/"
+home <- "/home/ec2-user/git/EnsembleCpG/"
 extra_storage <- "/home/ec2-user/extra_storage/CpG_EWAS/"
 # The user needs to define two vectors: Chr and Pos
 # Chr is the chromosome information for all SNPs. Use 23 and 24 to denote chromosome X & Y, respectively. CharToNum function in the appendix can help convert "chr#" -> #.
