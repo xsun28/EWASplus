@@ -25,6 +25,7 @@ class BED_binning(object):
         self.win_path = win_path
         self.chrs = chrs
         self.data_type = data_type
+        self.sorted = sorted
 
     def read_bed(self,file):
         bed = pd.read_csv(file,usecols=[0,1,2,5],header=None,names=['chr','pos1','pos2','strand'],sep='\s+')
@@ -35,7 +36,10 @@ class BED_binning(object):
         return bed
 
     def cal_counts(self,h5s,file,wins):
-        bed = self.read_bed((self.data_dir+file))
+        if self.data_type == 'WGBS':
+            bed = self.read_WGBS((self.data_dir+file))
+        else:
+            bed = self.read_bed((self.data_dir+file))
         bed = get_winid.convert_chr_to_num(bed,self.chrs)
         bed = get_winid.get_winid(wins,bed).sort_values(['winid'])
         bed_counts = bed.groupby(['winid']).aggregate({'count':sum}).reset_index()
@@ -58,7 +62,15 @@ class BED_binning(object):
              with pd.HDFStore(self.output+single_file,'w') as h5s:
                 self.cal_counts(h5s,single_file+'.bed',wins)
         
-
+    def read_WGBS(self,file):
+        bed = pd.read_csv(file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')
+        bed = bed.query('total!=0 and percent!=0')
+        bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1'],bed['pos2'])
+        bed.drop(['pos1','pos2'],axis=1,inplace=True)
+        bed['count'] = np.round(bed['total']*bed['percent']/100.0)
+        bed.drop(['total','percent'],axis=1,inplace=True) 
+        #    bed_counts = bed.groupby(['chr','coordinate']).aggregate({'count':sum})
+        return bed
 
 
 

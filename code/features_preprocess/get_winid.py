@@ -10,17 +10,19 @@ import pandas as pd
 import numpy as np
 ###################################
 def convert_chr_to_num(data,chrs=None):
-    if data['chr'].dtype != np.dtype('int64'): 
-        data['chr'].where(data['chr'].apply(lambda x: x[:3].lower()) != 'chr',data['chr'].apply(lambda x: x[3:]),inplace=True)
-        data['chr'].where(data['chr']!='X','23',inplace=True)
-        data['chr'].where(data['chr']!='Y','24',inplace=True)
-        data['chr'].where(data['chr']!='M','25',inplace=True)
+    def f(x):
+        x[i] = int(x[i][3:])
+        return x
+    if data['chr'].dtype != np.dtype('int64'):
+        i = data.columns.get_loc('chr')
         if chrs is not None:
             chr_str = [str(chrm) for chrm in chrs]
             print(chr_str)
-            data = data.query('chr in @chr_str')
-        data['chr'] = data['chr'].astype('i8')
-    return data
+        print(data.ix[1:10,0])
+        l = [f(x) for x in data.values if x[i].startswith('chr') and x[i][3:] in chr_str ]
+        return pd.DataFrame(l,columns=data.columns)
+    else:
+        return data
 #-----------------------------------
 def read_wins(win_path,chrs=None):
     wincols=['chr','start','end']
