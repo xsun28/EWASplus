@@ -18,7 +18,6 @@ def convert_chr_to_num(data,chrs=None):
         if chrs is not None:
             chr_str = [str(chrm) for chrm in chrs]
             print(chr_str)
-        print(data.ix[1:10,0])
         l = [f(x) for x in data.values if x[i].startswith('chr') and x[i][3:] in chr_str ]
         return pd.DataFrame(l,columns=data.columns)
     else:
@@ -34,10 +33,11 @@ def read_wins(win_path,chrs=None):
     return feature_wins
 
 #----------------------------------
-def get_winid(feature_wins,dataset):
+def get_winid(feature_wins,dataset,sorted=False):
 
 #    chrs = dataset['chr'].unique()
-    dataset.sort_values(['chr','coordinate'],inplace=True)
+    if not sorted:
+        dataset.sort_values(['chr','coordinate'],inplace=True)
     dataset['start'] = (dataset['coordinate']/200.0).apply(lambda x: int(np.ceil(x-1))*200+1)
     dataset_with_winid = pd.merge(dataset,feature_wins, on=['chr','start'],how='left')
     dataset_with_winid.rename(columns={'index':'winid'},inplace=True)

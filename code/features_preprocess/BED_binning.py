@@ -3,9 +3,7 @@
 """
 Created on Mon Feb 26 19:54:58 2018
 
-@author: Xiaobo
-"""
-
+@author: Xiaobo"""
 import pandas as pd
 import numpy as np
 import re
@@ -19,7 +17,7 @@ from features_preprocess import get_winid
 ############################################################
 class BED_binning(object):
     
-    def __init__(self,data_type='ATAC',data_dir=extra_storage+'ATAC/',output=home+'data/ATAC_H5S',win_path=home+'data/wins.txt',chrs=np.arange(1,23,dtype='int64')):
+    def __init__(self,data_type='ATAC',data_dir=extra_storage+'ATAC/',output=home+'data/ATAC_H5S',win_path=home+'data/wins.txt',chrs=np.arange(1,23,dtype='int64'),sorted=False):
         self.data_dir = data_dir
         self.output = output
         self.win_path = win_path
@@ -36,13 +34,17 @@ class BED_binning(object):
         return bed
 
     def cal_counts(self,h5s,file,wins):
+        print('start process '+file)
         if self.data_type == 'WGBS':
             bed = self.read_WGBS((self.data_dir+file))
         else:
             bed = self.read_bed((self.data_dir+file))
         bed = get_winid.convert_chr_to_num(bed,self.chrs)
-        bed = get_winid.get_winid(wins,bed).sort_values(['winid'])
-        bed_counts = bed.groupby(['winid']).aggregate({'count':sum}).reset_index()
+        bed = get_winid.get_winid(wins,bed,self.sorted).dropna()#.sort_values(['winid'])
+        if self.data_type == 'WGBS':
+            bed_counts = bed.groupby(['winid']).aggregate({'count':np.mean}).reset_index()
+        else:
+            bed_counts = bed.groupby(['winid']).aggregate({'count':sum}).reset_index()
         bed_counts.rename(columns={'count':file[:-4]+'_'+self.data_type+'_counts'},inplace=True)
         h5s[file[:-4]] = bed_counts 
         print(file+' is done')
@@ -61,10 +63,11 @@ class BED_binning(object):
         else:
              with pd.HDFStore(self.output+single_file,'w') as h5s:
                 self.cal_counts(h5s,single_file+'.bed',wins)
-        
+
+                
     def read_WGBS(self,file):
         bed = pd.read_csv(file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')
-        bed = bed.query('total!=0 and percent!=0')
+        bed.dropna(inplace=True)
         bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1'],bed['pos2'])
         bed.drop(['pos1','pos2'],axis=1,inplace=True)
         bed['count'] = np.round(bed['total']*bed['percent']/100.0)
