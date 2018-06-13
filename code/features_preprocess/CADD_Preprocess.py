@@ -32,6 +32,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
         CADD_scores = []
         CADD_file = self.data_dir+'whole_genome_SNVs.tsv.gz'
         tabix = pysam.Tabixfile(CADD_file)
+        i = 0
         for site in all_sites.values:
             raw_scores_one_site = []
             phred_one_site = []
@@ -42,7 +43,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
             while len(raw_scores_one_site) == 0:
                 left = left-1
                 right = right+1
-                print(chrm,left,right)
+                #print(chrm,left,right)
                 for row in tabix.fetch(chrm,left,right,parser=pysam.asTuple()):
                     raw_scores_one_site.extend([float(row[-2])])
                     phred_one_site.extend([float(row[-1])])
@@ -51,7 +52,9 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
             average_phred = np.mean(phred_one_site)
             max_phred = np.max(phred_one_site)
             CADD_scores.extend([[chrm,pos,max_raw,average_raw,max_phred,average_phred]])
-            print([chrm,pos,max_raw,average_raw,max_phred,average_phred])
+            i+=1
+            if i%1000 == 0:
+                print([chrm,pos,max_raw,average_raw,max_phred,average_phred])
         
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             h5s['CADD'] = pd.DataFrame(CADD_scores,columns=['chr','coordinate','CADD_max_raw','CADD_avg_raw','CADD_max_phred','CADD_avg_phred'])        

@@ -30,6 +30,7 @@ class DANN_Preprocess(object):
         dann_scores = []
         dann_file = self.data_dir+'DANN_whole_genome_SNVs.tsv.bgz'
         tabix = pysam.Tabixfile(dann_file)
+        i = 0
         for site in all_sites.values:
             scores_one_site = []
             chrm = str(site[1])
@@ -44,7 +45,9 @@ class DANN_Preprocess(object):
             average_score = np.mean(scores_one_site)
             max_score = np.max(scores_one_site)
             dann_scores.extend([[chrm,pos,max_score,average_score]])
-            print([chrm,pos,max_score,average_score])
+            i+=1
+            if i%1000 == 0:              
+                print([chrm,pos,max_score,average_score])
         
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             h5s['DANN'] = pd.DataFrame(dann_scores,columns=['chr','coordinate','DANN_max_score','DANN_avg_score']) 

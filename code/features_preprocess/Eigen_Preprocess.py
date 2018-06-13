@@ -33,6 +33,7 @@ class Eigen_Preprocess(object):
         #files = os.listdir(data_dir)
         #files = [f for f in files if (len(reg.findall(f))>0) and (reg1.findall(f)[0][3:] in chrs)]
         eigen_scores = []
+        i = 0
         for site in all_sites.values:
             raw_scores_one_site = []
             phred_one_site = []
@@ -61,7 +62,9 @@ class Eigen_Preprocess(object):
             average_pc_phred = np.mean(pc_phred_one_site)
             max_pc_phred = np.max(pc_phred_one_site)
             eigen_scores.extend([[chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred]])
-            print([chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred])
+            i += 1
+            if i%1000 == 0:
+                print([chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred])
         
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             h5s['Eigen'] = pd.DataFrame(eigen_scores,columns=['chr','coordinate','eigen_max_raw','eigen_avg_raw','eigen_max_phred','egien_avg_phred','eigen_max_pc_raw','eigen_avg_pc_raw','eigen_max_pc_phred','egien_avg_pc_phred'])        
