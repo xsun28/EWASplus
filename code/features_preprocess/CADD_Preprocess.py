@@ -36,7 +36,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
         for site in all_sites.values:
             raw_scores_one_site = []
             phred_one_site = []
-            chrm = str(site[1])
+            chrm = str(int(site[1]))
             pos = int(site[2])
             left = pos
             right = pos-1

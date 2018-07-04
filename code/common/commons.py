@@ -117,3 +117,7 @@ def upSampling(X,fold):
     temp_x = pd.DataFrame(temp_x,columns=x.columns)
     return temp_x
 
+#--------------------------------------------------------------------------------
+def swapCols(df,a,b):
+    df[a],df[b] = df[b],df[a]
+    return df

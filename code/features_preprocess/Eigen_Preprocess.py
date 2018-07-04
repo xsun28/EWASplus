@@ -39,7 +39,7 @@ class Eigen_Preprocess(object):
             phred_one_site = []
             pc_raw_scores_one_site = []
             pc_phred_one_site = []
-            chrm = str(site[1])
+            chrm = str(int(site[1]))
             pos = int(site[2])
             left = pos
             right = pos-1

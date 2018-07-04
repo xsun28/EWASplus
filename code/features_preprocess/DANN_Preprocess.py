@@ -33,7 +33,7 @@ class DANN_Preprocess(object):
         i = 0
         for site in all_sites.values:
             scores_one_site = []
-            chrm = str(site[1])
+            chrm = str(int(site[1]))
             pos = int(site[2])
             left = pos
             right = pos-1
