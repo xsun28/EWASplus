@@ -9,7 +9,7 @@ extra_storage <- "/home/ec2-user/extra_storage/CpG_EWAS/"
 # Pos is hg19 position for all SNPs.
 # Examples (3 SNPs in total): Chr=c(1,2,3), Pos=c(1001, 40000, 12345)
 # Given Chr and Pos, the following script can extract GenoCanyon10K scores for all SNPs
-dataset = 'RICHS'
+dataset = 'Cd'
 file <- paste(home,"data/",dataset,"/all_sites_winid.csv", sep='')
 working_dir <- paste(extra_storage,"GenoCanyon/GenoCanyon_10K/",sep='')
 output_dir <- paste(extra_storage,"GenoCanyon/Results/",dataset,"/selected_site_scores.txt",sep='')
