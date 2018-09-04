@@ -8,7 +8,7 @@ Created on Wed Mar 14 16:00:56 2018
 import sys
 home = '/home/ec2-user/git/EnsembleCpG/'
 extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
-type_name = 'tangles'  ## amyloid, cerad, tangles
+type_name = 'cerad'  ## amyloid, cerad, tangles
 with_cell_type = 'with' ##with without
 import pandas as pd
 import numpy as np
