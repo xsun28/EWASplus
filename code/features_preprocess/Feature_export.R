@@ -1,14 +1,15 @@
 #! /usr/bin/Rscript
 # pos_winid<-read.table('/Users/Xiaobo/Jobs/CpG/pos_winid.csv',header =FALSE)
 # neg_winid<-read.table('/Users/Xiaobo/Jobs/CpG/neg_winid.csv',header=FALSE)
-home <- '/home/ec2-user/git/EnsembleCpG/data/'
+#home <- '/home/ec2-user/git/EnsembleCpG/data/'
 args = commandArgs(trailingOnly=TRUE)
-dataset = paste(args[1],'/',sep='')
+home <- paste(args[1],'/',sep='')
+dataset = paste(args[2],'/',sep='')
 all_sites_winid<-read.table(paste(home,dataset,'selected_pos_winid.csv',sep=''),header=FALSE)
 dir <- paste(home,'features/',sep='')
 
 files <- list.files(dir,".*adjust.rda$")
-
+dir.create(paste(dir,dataset,sep=''),showWarnings = FALSE)
 for (file in files){
   load(paste(dir,file,sep=''))
   #pos <- readmat[unlist(pos_winid),]

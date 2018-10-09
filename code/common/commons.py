@@ -8,7 +8,7 @@ Created on Wed Mar 14 16:00:56 2018
 import sys
 home = '/home/ec2-user/git/EnsembleCpG/'
 extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
-type_name = 'cerad'  ## amyloid, cerad, tangles
+type_name = 'gpath'  ## amyloid, cerad, tangles，cogdec，gpath，braak
 with_cell_type = 'with' ##with without
 import pandas as pd
 import numpy as np
@@ -31,7 +31,22 @@ def sample_weights(X,y,class_weights=None,factor=0.5):
         else:       
             weights = np.power(-(np.log(X['pvalue'])),factor)       
     return weights
-
+#-----------------------------------------------------------------------------
+def find_nearest_450ksites(window,sites,wgbs):
+    first = True
+    for ix,site in wgbs.iterrows():
+        lower = site['coordinate'] - window
+        upper = site['coordinate'] + window
+        chr = site['chr']
+        nearby_sites = sites.query('chr==@chr and coordinate >=@lower and coordinate<=@upper ')
+        nearby_sites['wgbs_chr'] = chr
+        nearby_sites['wgbs_coordinate'] = site['coordinate']
+        if first:
+            nearby_all_sites = nearby_sites
+            first = False
+            continue
+        nearby_all_sites = nearby_all_sites.append(nearby_sites)
+    return nearby_all_sites.set_index(['wgbs_chr','wgbs_coordinate'])  
 #-----------------------------------------------------------------------------
 def train_test_split(data,test_size=0.1,scaler='standard'):
     total_dataset = data.copy()
@@ -67,12 +82,17 @@ def convert_chr_to_str(data):
 
 #---------------------------------------------------------------------------
 
-def merge_with_feature_windows(win_path,pos_sites,neg_sites):
+def merge_with_feature_windows(win_path,pos_sites,neg_sites=None):
     wincols=['chr','start','end']
     feature_wins = pd.read_csv(win_path,sep='\s+',usecols=[0,1,2],header=None,names=wincols,skiprows=1)
     feature_wins.reset_index(inplace=True)
     feature_wins['index'] = feature_wins['index']+1
-    chrs = np.union1d(pos_sites['chr'].unique(),neg_sites['chr'].unique())
+    
+    if neg_sites is None:
+        chrs =  pos_sites['chr'].unique()
+    else:
+        chrs = np.union1d(pos_sites['chr'].unique(),neg_sites['chr'].unique())
+    
     chrs = [str(chrm) for chrm in chrs ]
     feature_wins['chr'] = feature_wins['chr'].apply(lambda x: x[3:])
     feature_wins = feature_wins.query('chr in @chrs')
@@ -80,14 +100,17 @@ def merge_with_feature_windows(win_path,pos_sites,neg_sites):
     feature_wins = convert_chr_to_num(feature_wins)   
     feature_wins.sort_values(['chr','start'],inplace=True)
     pos_sites.sort_values(['chr','coordinate'],inplace=True)
-    neg_sites.sort_values(['chr','coordinate'],inplace=True)
     pos_sites['start'] = (pos_sites['coordinate']/200.0).apply(lambda x: int(np.ceil(x-1))*200+1)
-    neg_sites['start'] = (neg_sites['coordinate']/200.0).apply(lambda x: int(np.ceil(x-1))*200+1)
     pos_with_winid = pd.merge(pos_sites,feature_wins, on=['chr','start'],how='left')
     pos_with_winid.rename(columns={'index':'winid'},inplace=True)
-    neg_with_winid = pd.merge(neg_sites,feature_wins, on=['chr','start'],how='left')
-    neg_with_winid.rename(columns={'index':'winid'},inplace=True)
-    return pos_with_winid,neg_with_winid
+    
+    if neg_sites is not None:    
+        neg_sites.sort_values(['chr','coordinate'],inplace=True)
+        neg_sites['start'] = (neg_sites['coordinate']/200.0).apply(lambda x: int(np.ceil(x-1))*200+1)
+        neg_with_winid = pd.merge(neg_sites,feature_wins, on=['chr','start'],how='left')
+        neg_with_winid.rename(columns={'index':'winid'},inplace=True)
+    
+    return pos_with_winid,neg_with_winid if neg_sites is not None else None
 
 
 def cross_validate_score(estimator,X,y=None,sample_weight=None,cv=3):
