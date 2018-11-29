@@ -18,7 +18,7 @@ import pysam
 
 #
 class Eigen_Preprocess(object):
-    def __init__(self,data_dir = extra_storage+'Eigen/',sites_file = home+'data/all_sites_winid.csv',additional_feature_file = home+'data/features/addtional_features'):
+    def __init__(self,data_dir = extra_storage+'Eigen/',sites_file = home+'data/commons/all_sites_winid.csv',additional_feature_file = home+'data/features/addtional_features'):
         self.data_dir = data_dir
         self.sites_file = sites_file
         self.additional_feature_file = additional_feature_file 

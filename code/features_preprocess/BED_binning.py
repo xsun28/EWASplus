@@ -17,7 +17,7 @@ from features_preprocess import get_winid
 ############################################################
 class BED_binning(object):
     
-    def __init__(self,data_type='ATAC',data_dir=extra_storage+'ATAC/',output=home+'data/ATAC_H5S',win_path=home+'data/wins.txt',chrs=np.arange(1,23,dtype='int64'),sorted=False):
+    def __init__(self,data_type='ATAC',data_dir=extra_storage+'ATAC/',output=home+'data/commons/ATAC_H5S',win_path=home+'data/commons/wins.txt',chrs=np.arange(1,23,dtype='int64'),sorted=False):
         self.data_dir = data_dir
         self.output = output
         self.win_path = win_path

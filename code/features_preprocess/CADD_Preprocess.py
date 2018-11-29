@@ -20,7 +20,7 @@ from sklearn.base import BaseEstimator,TransformerMixin
 class CADD_Preprocess(BaseEstimator,TransformerMixin):
     
     def __init__(self,data_dir = extra_storage+'CADD/',
-                 sites_file = home+'data/all_sites_winid.csv',
+                 sites_file = home+'data/commons/all_sites_winid.csv',
                  additional_feature_file = home+'data/features/addtional_features'):
         self.data_dir = data_dir
         self.sites_file = sites_file
@@ -30,6 +30,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
         all_sites = pd.read_csv(self.sites_file)
         all_sites = get_winid.convert_chr_to_num(all_sites)
         CADD_scores = []
+        print(extra_storage)
         CADD_file = self.data_dir+'whole_genome_SNVs.tsv.gz'
         tabix = pysam.Tabixfile(CADD_file)
         i = 0

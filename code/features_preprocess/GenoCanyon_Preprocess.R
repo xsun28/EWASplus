@@ -1,16 +1,23 @@
 #! /usr/bin/Rscript
 #install.packages("bigmemory",repos='http://cran.us.r-project.org')
 library(bigmemory)
+library('methods')
 source("Script_Appendix.R")
-is450k <- FALSE
-home <- "/home/ec2-user/git/EnsembleCpG/"
-extra_storage <- "/home/ec2-user/extra_storage/CpG_EWAS/"
+args = commandArgs(trailingOnly=TRUE)
+is450k <- as.logical(args[1])
+home <- paste(args[2],'/',sep='')
+extra_storage <- args[3]
+dataset <- args[4]
+
+#is450k <- FALSE
+#home <- "/home/ec2-user/volume/git/EnsembleCpG/"
+#extra_storage <- "/home/ec2-user/volume/git/EnsembleCpG/data/raw/"
 # The user needs to define two vectors: Chr and Pos
 # Chr is the chromosome information for all SNPs. Use 23 and 24 to denote chromosome X & Y, respectively. CharToNum function in the appendix can help convert "chr#" -> #.
 # Pos is hg19 position for all SNPs.
 # Examples (3 SNPs in total): Chr=c(1,2,3), Pos=c(1001, 40000, 12345)
 # Given Chr and Pos, the following script can extract GenoCanyon10K scores for all SNPs
-dataset = 'AD_CpG/amyloidwith'
+#dataset = 'AD_CpG/amyloidwith'
 if (!is450k){
     file <- paste(home,"data/",dataset,"/all_sites_winid.csv", sep='')
 }else{

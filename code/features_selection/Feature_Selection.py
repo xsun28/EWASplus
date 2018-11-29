@@ -46,15 +46,17 @@ class FeatureSelection(BaseEstimator,TransformerMixin):
         self.kwargs = kwargs
         return
     
-    def fit(self,X=None,y=None,sample_weight=None):
+    def fit(self,X=None,y=None,sample_weight=None,random_state=43):
         self.sample_weights = sample_weight
         if self.selected_methods['random_forest']:
             rf_params = self.kwargs['random_forest']
+            rf_params['random_state'] = random_state
             rf = RandomForestClassifier(**rf_params)
             self.initialized_methods['random_forest'] = rf
         if self.selected_methods['xgboost']:   
             xgb_params = self.kwargs['xgboost']
             xgb_params['objective'] = 'multi:softmax' if self.class_num>2 else 'binary:logistic'
+            xgb_params['random_state'] = random_state
             booster = xgb.XGBClassifier(**xgb_params)
             self.initialized_methods['xgboost'] = booster
 #        if self.selected_methods['extra_forest']:
@@ -63,6 +65,7 @@ class FeatureSelection(BaseEstimator,TransformerMixin):
         if self.selected_methods['mutual_information']:
             mutual_info_clf = partial(mutual_info_classif,random_state=91)
             mi_params = self.kwargs['mutual_information']
+            mi_params['random_state'] = random_state
             mi = SelectKBest(mutual_info_clf,**mi_params)
             self.initialized_methods['mutual_information'] = mi
         if self.selected_methods['fisher_score']:
@@ -71,10 +74,12 @@ class FeatureSelection(BaseEstimator,TransformerMixin):
             self.initialized_methods['fisher_score'] = f
         if self.selected_methods['linear_SVC']:
             lsvc_params = self.kwargs['linear_SVC']
+            lsvc_params['random_state'] = random_state
             lsvc = LinearSVC(**lsvc_params)
             self.initialized_methods['linear_SVC'] = lsvc
         if self.selected_methods['logistic_regression']:
             log_reg_params = self.kwargs['logistic_regression']
+            log_reg_params['random_state'] = random_state
             if self.class_num == 2:
                 log_reg = LogisticRegression(**log_reg_params)
                 self.initialized_methods['logistic_regression'] = log_reg

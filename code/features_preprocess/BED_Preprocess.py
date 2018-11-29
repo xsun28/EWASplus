@@ -17,7 +17,7 @@ import os
 
 class BED_Preprocessing(object):
     
-    def __init__(self,h5s_file= home+'data/ATAC_H5S',data_type='ATAC',sites_file = home+'data/all_sites_winid.csv',additional_feature_file = home+'data/features/addtional_features'):
+    def __init__(self,h5s_file= home+'data/commons/ATAC_H5S',data_type='ATAC',sites_file = home+'data/commons/all_sites_winid.csv',additional_feature_file = home+'data/features/addtional_features'):
         self.h5s_file = h5s_file
         self.sites_file = sites_file
         self.additional_feature_file = additional_feature_file

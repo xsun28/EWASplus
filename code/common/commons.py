@@ -6,9 +6,12 @@ Created on Wed Mar 14 16:00:56 2018
 @author: Xiaobo
 """
 import sys
-home = '/home/ec2-user/git/EnsembleCpG/'
-extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
-type_name = 'gpath'  ## amyloid, cerad, tangles，cogdec，gpath，braak
+import os
+#home = '/home/ec2-user/git/EnsembleCpG/'
+home = os.getcwd()[:os.getcwd().find('EnsembleCpG')]+'EnsembleCpG/'
+extra_storage = home+'data/raw/'
+#extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
+type_name = 'braak'  ## amyloid, cerad, tangles，cogdec，gpath，braak
 with_cell_type = 'with' ##with without
 import pandas as pd
 import numpy as np
@@ -62,7 +65,7 @@ def train_test_split(data,test_size=0.1,scaler='standard'):
     test_x = scaler.transform(test_set[test_set.columns.drop(['label','pvalue'])])
     test_x['pvalue'] = test_set['pvalue']
     test_label = test_set['label']
-    return train_x,train_label,test_x,test_label        
+    return train_x,train_label,test_x,test_label,scaler.scaler        
 
 #---------------------------------------------------------------------------
 def convert_chr_to_num(data):
