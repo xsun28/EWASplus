@@ -58,7 +58,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
                 print([chrm,pos,max_raw,average_raw,max_phred,average_phred])
         
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
-            h5s['CADD'] = pd.DataFrame(CADD_scores,columns=['chr','coordinate','CADD_max_raw','CADD_avg_raw','CADD_max_phred','CADD_avg_phred'])        
+            h5s['CADD'] = pd.DataFrame(CADD_scores,columns=['chr','coordinate','CADD_max_raw','CADD_avg_raw','CADD_max_phred','CADD_avg_phred']).drop(['CADD_max_raw','CADD_avg_raw'],axis=1)        
         
         
                 

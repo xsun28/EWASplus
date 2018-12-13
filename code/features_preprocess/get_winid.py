@@ -33,12 +33,12 @@ def read_wins(win_path,chrs=None):
     return feature_wins
 
 #----------------------------------
-def get_winid(feature_wins,dataset,sorted=False):
+def get_winid(feature_wins,dataset,sorted=False,start_index=1):
 
 #    chrs = dataset['chr'].unique()
     if not sorted:
         dataset.sort_values(['chr','coordinate'],inplace=True)
-    dataset['start'] = (dataset['coordinate']/200.0).apply(lambda x: int(np.ceil(x-1))*200+1)
+    dataset['start'] = np.floor((dataset['coordinate']-start_index)/200.0)*200+1
     dataset_with_winid = pd.merge(dataset,feature_wins, on=['chr','start'],how='left')
     dataset_with_winid.rename(columns={'index':'winid'},inplace=True)
     return dataset_with_winid

@@ -5,7 +5,11 @@
 args = commandArgs(trailingOnly=TRUE)
 home <- paste(args[1],'/',sep='')
 dataset = paste(args[2],'/',sep='')
-all_sites_winid<-read.table(paste(home,dataset,'selected_pos_winid.csv',sep=''),header=FALSE)
+is_450k <- as.logical(args[3])
+tablename <- 'selected_450k_pos_winid.csv' if(is_450k) else 'selected_pos_winid.csv'
+filesuffix <- '_all_450k.csv' if(is_450k) else '_all.csv'
+    
+all_sites_winid<-read.table(paste(home,dataset,tablename,sep=''),header=FALSE)
 dir <- paste(home,'features/',sep='')
 
 files <- list.files(dir,".*adjust.rda$")
@@ -18,7 +22,7 @@ for (file in files){
   file_name <- unlist(strsplit(file,'\\.'))[1]
   #write.csv(pos,file=paste(dir,file_name,'_Pos.csv',sep=''),row.names=F)
   #write.csv(neg,file=paste(dir,file_name,'_neg.csv',sep=''),row.names=F)
-  write.csv(all,file=paste(dir,dataset,file_name,'_all.csv',sep=''),row.names=F)
+  write.csv(all,file=paste(dir,dataset,file_name,filesuffix,sep=''),row.names=F)
   #rm(readmat,pos,neg)
   rm(readmat,all)
 }

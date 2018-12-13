@@ -1,3 +1,4 @@
+#running script: called first with python commons.py -t amyloid -w with
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
@@ -10,7 +11,17 @@ import os
 #home = '/home/ec2-user/git/EnsembleCpG/'
 home = os.getcwd()[:os.getcwd().find('EnsembleCpG')]+'EnsembleCpG/'
 extra_storage = home+'data/raw/'
+os.environ["PYTHONPATH"] = home+"code/"
+sys.path[1] = os.environ["PYTHONPATH"]
 #extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
+import argparse
+parser = argparse.ArgumentParser(description='AD sites selection')
+parser.add_argument('-t',required=True,help='AD trait',dest='trait',metavar='AD traits')
+parser.add_argument('-w',required=False,default='with',help='with cell type or not',dest='with',metavar='with cell types')
+#args = parser.parse_args()
+#type_name = args.trait  ## amyloid, cerad, tangles
+#with_cell_type = args.with ## with or without
+
 type_name = 'braak'  ## amyloid, cerad, tangles，cogdec，gpath，braak
 with_cell_type = 'with' ##with without
 import pandas as pd
@@ -149,3 +160,18 @@ def upSampling(X,fold):
 def swapCols(df,a,b):
     df[a],df[b] = df[b],df[a]
     return df
+
+
+#---------------------------------------------------------------------------------
+def rename_features(x):   #rename repetitive features
+    features = np.array(x.columns)
+    features_count = pd.Series(index=x.columns.unique())
+    features_count = features_count.fillna(int(0))
+    for i,name in enumerate(x.columns):
+        if features_count[name] == 0:
+            features_count[name] += 1
+        else:
+            features[i] = name+str(features_count[name])
+            features_count[name] += 1
+    x.columns = features
+    return 
