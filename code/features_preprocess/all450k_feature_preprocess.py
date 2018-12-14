@@ -5,7 +5,7 @@ from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
 from features_preprocess import BED_binning
-from features_preprocess import BED_Preprocess, CADD_Preprocess,DANN_Preprocess,Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
+from features_preprocess import BED_Preprocess,CADD_Preprocess_bedtools as CADD_Preprocess,DANN_Preprocess_bedtools as DANN_Preprocess,Eigen_Preprocess_bedtools as Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
 import subprocess
 import get_winid
 import argparse
