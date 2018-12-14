@@ -1,10 +1,12 @@
+#running script: run as python all_features_preprocess.py -d AD_CpG
+
 import os
 import sys
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
 from features_preprocess import BED_binning
-from features_preprocess import BED_Preprocess, CADD_Preprocess,DANN_Preprocess,Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess
+from features_preprocess import BED_Preprocess, CADD_Preprocess,DANN_Preprocess,Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
 import subprocess
 from features_preprocess import get_winid
 from common.commons import rename_features
@@ -94,12 +96,15 @@ if os.path.exists(genocanyon_scores):
 else:
     print('Running GenoCanyon R script...')
     subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
-    
+
+gwava_preprocess = GWAVA_Preprocess.GWAVA_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
+gwava_preprocess.process()    
+
+gc.collect()
+
 with pd.HDFStore(home+'data/'+dataset+'/all_sites_winid','r') as h5s:
     all_sites = h5s['all_sites_winid']
 all_sites.reset_index(drop=True,inplace=True)    
-
-gc.collect()
 
 feature_dir = home+'data/features/'+dataset+'/'
 files = os.listdir(feature_dir)
@@ -115,7 +120,7 @@ for file in files:
 rename_features(all_sites)
 all_sites.drop(['start','end'],axis=1,inplace=True)
 
-additional_features = ['ATAC','CADD','DANN','Eigen','GenoCanyon','RNASeq','WGBS']
+additional_features = ['ATAC','CADD','DANN','Eigen','GenoCanyon','RNASeq','WGBS','GWAVA']
 #merge with additional features
 with pd.HDFStore(feature_dir+'addtional_features','r') as h5s:
     for feature in additional_features:

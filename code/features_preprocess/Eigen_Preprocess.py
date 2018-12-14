@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Feb 21 22:27:39 2018
-
 @author: Xiaobo
 """
 
@@ -14,6 +13,9 @@ home = commons.home
 extra_storage = commons.extra_storage
 from features_preprocess import get_winid
 import pysam
+from pybedtools import BedTool
+import gc
+import csv
 #----------------------------------------------------
 
 #
@@ -23,56 +25,44 @@ class Eigen_Preprocess(object):
         self.sites_file = sites_file
         self.additional_feature_file = additional_feature_file 
     
+    def convert2bed(chr):
+        eigen_file = self.data_dir+'Eigen_hg19_noncoding_annot_chr'+chr+'.tab.bgz'
+        chr_file = pd.read_csv(eigen_file, usecols=[0,1,30,32],delimiter='\t',compression='gzip',skiprows=1,header=None,names=['chr','coordinate','eigen_phred','eigen_pc_phred'])
+        chr_file['end'] = chr_file['coordinate']+1
+        chr_file = chr_file[['chr','coordinate','end','eigen_phred','eigen_pc_phred']]
+        chr_file.to_csv(self.data_dir+'chr'+chr+'.tsv',header=None,index=False,sep='\t')
+    
+    def mean_max(x):
+        x['eigen_max_phred'] = x['eigen_phred'].max()
+        x['egien_avg_phred'] = x['eigen_phred'].mean()
+        x['eigen_max_pc_phred'] = x['eigen_pc_phred'].max()
+        x['egien_avg_pc_phred'] = x['eigen_pc_phred'].mean()
+        return x[:1][['chr','coordinate','distiance_to_nearest_eigen','eigen_max_phred','egien_avg_phred','eigen_max_pc_phred','egien_avg_pc_phred']]
+    
     def process(self):
-        all_sites = pd.read_csv(self.sites_file)
+        all_sites = pd.read_csv(self.sites_file,usecols=['chr','coordinate'])
         all_sites = get_winid.convert_chr_to_num(all_sites)
-        all_sites.sort_values(['chr','coordinate'],inplace=True)
-
-        #reg = re.compile('^Eigen.*bgz$')
-        #reg1 = re.compile('chr[0-9]{1,2}')
-        #files = os.listdir(data_dir)
-        #files = [f for f in files if (len(reg.findall(f))>0) and (reg1.findall(f)[0][3:] in chrs)]
-        eigen_scores = []
-        i = 0
-        for site in all_sites.values:
-            raw_scores_one_site = []
-            phred_one_site = []
-            pc_raw_scores_one_site = []
-            pc_phred_one_site = []
-            chrm = str(int(site[1]))
-            pos = int(site[2])
-            left = pos
-            right = pos-1
-            eigen_file = self.data_dir+'Eigen_hg19_noncoding_annot_chr'+chrm+'.tab.bgz'
-            tabix = pysam.Tabixfile(eigen_file)
-            while len(raw_scores_one_site) == 0:
-                left = left-1
-                right = right+1
-                for row in tabix.fetch(chrm,left,right,parser=pysam.asTuple()):
-                    raw_scores_one_site.extend([float(row[-4])])
-                    phred_one_site.extend([float(row[-3])])
-                    pc_raw_scores_one_site.extend([float(row[-2])])
-                    pc_phred_one_site.extend([float(row[-1])])
-            average_raw = np.mean(raw_scores_one_site)
-            max_raw = np.max(raw_scores_one_site)
-            average_phred = np.mean(phred_one_site)
-            max_phred = np.max(phred_one_site)
-            average_pc_raw = np.mean(pc_raw_scores_one_site)
-            max_pc_raw = np.max(pc_raw_scores_one_site)
-            average_pc_phred = np.mean(pc_phred_one_site)
-            max_pc_phred = np.max(pc_phred_one_site)
-            eigen_scores.extend([[chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred]])
-            i += 1
-            if i%1000 == 0:
-                print([chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred])
-        
+        chrs = np.sort(all_sites['chr'].unique())
+        all_sites_closest = []
+        for chr in chrs:
+            print('processing sites on chr '+str(chr))
+            chr_file = self.data_dir+'chr'+chr+'.tsv'
+            if not os.path.exists(chr_file):
+                self.split_by_chr()
+            chr_sites = all_sites.query('chr==@chr')
+            chr_sites['end'] = chr_sites['coordinate']+1
+            chr_sites = BedTool([tuple(x[1]) for x in chr_sites.iterrows()])
+            chr_sites_closest = chr_sites.closest(chr_file,d=True,nonamecheck=True)
+            for row in chr_sites_closest:
+                all_sites_closest.extend([[row[0],row[1],row[6],row[7],row[8]]])
+            del chr_sites_closest
+            del chr_sites
+            gc.collect()
+        all_sites_closest = pd.DataFrame(all_sites_closest,columns=['chr','coordinate','eigen_phred','eigen_pc_phred','distiance_to_nearest_eigen'])
+        all_sites_closest = all_sites_closest.groupby(['chr','coordinate']).apply(mean_max).reset_index()
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
-            h5s['Eigen'] = pd.DataFrame(eigen_scores,columns=['chr','coordinate','eigen_max_raw','eigen_avg_raw','eigen_max_phred','egien_avg_phred','eigen_max_pc_raw','eigen_avg_pc_raw','eigen_max_pc_phred','egien_avg_pc_phred'])        
+            h5s['Eigen'] = all_sites_closest
 
-
-
-#data_dir = '/Users/Xiaobo/Desktop/test.tsv'
-#sites_file = '/Users/Xiaobo/Jobs/CpG/data/all_sites_winid.csv'
 
 
 

@@ -150,7 +150,11 @@ for i in np.arange(len(ranges)-1):
         print('Running GenoCanyon R script...')
         subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
         
-        
+    gwava_preprocess = GWAVA_Preprocess.GWAVA_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
+    gwava_preprocess.process()     
+    
+    gc.collect() 
+    
     selected_wgbs = pd.read_csv(home+'data/'+dataset+'/all_sites_winid.csv')
     feature_dir = home+'data/features/'+dataset+'/'
     files = os.listdir(feature_dir)
@@ -164,7 +168,7 @@ for i in np.arange(len(ranges)-1):
         selected_wgbs = pd.concat([selected_wgbs,feature],axis=1)
     
     rename_features(selected_wgbs)
-    additional_features = ['ATAC','CADD','DANN','Eigen','GenoCanyon','RNASeq','WGBS']
+    additional_features = ['ATAC','CADD','DANN','Eigen','GenoCanyon','RNASeq','WGBS','GWAVA']
     
     #merge with additional features
     with pd.HDFStore(additional_feature_file,'r') as h5s:

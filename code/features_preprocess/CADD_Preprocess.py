@@ -1,8 +1,8 @@
+
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Created on Wed Feb 21 22:27:39 2018
-
 @author: Xiaobo
 """
 
@@ -14,7 +14,11 @@ home = commons.home
 extra_storage = commons.extra_storage
 from features_preprocess import get_winid
 import pysam
+from pybedtools import BedTool
+import csv
 from sklearn.base import BaseEstimator,TransformerMixin
+import gc
+import os
 #----------------------------------------------------
 
 class CADD_Preprocess(BaseEstimator,TransformerMixin):
@@ -26,52 +30,51 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
         self.sites_file = sites_file
         self.additional_feature_file = additional_feature_file
         
-    def process(self):
-        all_sites = pd.read_csv(self.sites_file)
-        all_sites = get_winid.convert_chr_to_num(all_sites)
-        CADD_scores = []
-        print(extra_storage)
+    def split_by_chr():
         CADD_file = self.data_dir+'whole_genome_SNVs.tsv.gz'
         tabix = pysam.Tabixfile(CADD_file)
-        i = 0
-        for site in all_sites.values:
-            raw_scores_one_site = []
-            phred_one_site = []
-            chrm = str(int(site[1]))
-            pos = int(site[2])
-            left = pos
-            right = pos-1
-            while len(raw_scores_one_site) == 0:
-                left = left-1
-                right = right+1
-                #print(chrm,left,right)
-                for row in tabix.fetch(chrm,left,right,parser=pysam.asTuple()):
-                    raw_scores_one_site.extend([float(row[-2])])
-                    phred_one_site.extend([float(row[-1])])
-            average_raw = np.mean(raw_scores_one_site)
-            max_raw = np.max(raw_scores_one_site)
-            average_phred = np.mean(phred_one_site)
-            max_phred = np.max(phred_one_site)
-            CADD_scores.extend([[chrm,pos,max_raw,average_raw,max_phred,average_phred]])
-            i+=1
-            if i%1000 == 0:
-                print([chrm,pos,max_raw,average_raw,max_phred,average_phred])
-        
-        with pd.HDFStore(self.additional_feature_file,'a') as h5s:
-            h5s['CADD'] = pd.DataFrame(CADD_scores,columns=['chr','coordinate','CADD_max_raw','CADD_avg_raw','CADD_max_phred','CADD_avg_phred']).drop(['CADD_max_raw','CADD_avg_raw'],axis=1)        
-        
-        
-                
+        chrs = [str(x) for x in np.arange(1,22)]
+        left = 0
+        right = 2000000000
+        for chr in chrs:
+            chr_file = self.data_dir+'chr'+chr+'.tsv'
+            with open(chr_file,'w') as f:
+                writer = csv.writer(f,delimiter='\t')
+                for row in tabix.fetch(chr,left,right):
+                    writer.writerow((row[0],int(row[1]),int(row[1])+1,float(row[-1])))
     
-#
+    def mean_max(x):
+        x['CADD_max_phred'] = x['phred'].max()
+        x['CADD_avg_phred'] = x['phred'].mean()
+        return x[:1][['chr','coordinate','distiance_to_nearest_CADD','CADD_max_phred','CADD_avg_phred']]
+    
+    
+    def process(self):
+        all_sites = pd.read_csv(self.sites_file,usecols=['chr','coordinate'])
+        all_sites = get_winid.convert_chr_to_num(all_sites)
+        chrs = np.sort(all_sites['chr'].unique())
+        all_sites_closest = []
+        for chr in chrs:
+            print('processing sites on chr '+str(chr))
+            chr_file = self.data_dir+'chr'+str(chr)+'.tsv'
+            if not os.path.exists(chr_file):
+                self.split_by_chr()
+            chr_sites = all_sites.query('chr==@chr')
+            chr_sites['end'] = chr_sites['coordinate']+1
+            chr_sites = BedTool([tuple(x[1]) for x in chr_sites.iterrows()])
+            chr_sites_closest = chr_sites.closest(chr_file,d=True,nonamecheck=True)
+            for row in chr_sites_closest:
+                all_sites_closest.extend([[row[0],row[1],row[6],row[7]]])
+            del chr_sites_closest
+            del chr_sites
+            gc.collect()
+        all_sites_closest = pd.DataFrame(all_sites_closest,columns=['chr','coordinate','phred','distiance_to_nearest_CADD'])
+        all_sites_closest = all_sites_closest.groupby(['chr','coordinate']).apply(mean_max).reset_index()
+        with pd.HDFStore(self.additional_feature_file,'a') as h5s:
+            h5s['CADD'] = all_sites_closest
 
 
-#data_dir = '/Users/Xiaobo/Desktop/test.tsv'
-#sites_file = '/Users/Xiaobo/Jobs/CpG/data/all_sites_winid.csv'
-#win_path = '/home/ec2-user/CpGPython/data/wins.txt'
-
-
-#all_sites.sort_values(['chr','coordinate'],inplace=True)
-
-#wins = get_winid.read_wins(win_path,chrs)
+       
+        
+        
 
