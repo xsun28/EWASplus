@@ -4,21 +4,18 @@ from common import commons
 home = commons.home
 import pandas as pd
 import numpy as np
-from matplotlib import pyplot as plt
-from sklearn.manifold import TSNE
-from mpl_toolkits.mplot3d import Axes3D
 from features_selection import Feature_Selection as FS
 from log import Logger
-from hyperopt import fmin,tpe,hp, STATUS_OK,Trials
-import math
 from features_selection import  WilcoxonRankSums
 from sklearn.externals import joblib
 from features_selection import feature_selection_commons as fsc
 
-dataset = 'AD_CpG'
-type_name = commons.type_name  ## amyloid, cerad, tangles
-with_cell_type = commons.with_cell_type ## with or without
-dataset = dataset+'/'+type_name+with_cell_type
+dataset = commons.dataset
+if dataset == 'AD_CpG':
+    type_name = commons.type_name  ## amyloid, cerad, tangles
+    with_cell_type = commons.with_cell_type ## with or without
+    dataset = dataset+'/'+type_name+with_cell_type
+
 log_dir = home+'logs/'
 logger = Logger.Logger(log_dir,False).get_logger()
 with pd.HDFStore(home+'data/'+dataset+'/all_features','r') as h5s:
@@ -33,21 +30,23 @@ all_features = all_data
 #all_features = fsc.subset_control(all_data,30)
 #all_features = all_data.query('beta_sign>0') ##only for hypermethylated sites in RICHS dataset, for AD dataset, hyper/hypo status can't be determined from beta
 #logger.info('only keep heypermethylated sites')
-
-if type_name == 'cerad':
-    type_weight_factor = 0.23
-elif type_name == 'amyloid':
-    type_weight_factor = 0.3
-elif type_name == 'cogdec':
+if dataset == 'Cd':
     type_weight_factor = 0.4
-elif type_name == 'gpath':
-    type_weight_factor = 0.3
-elif type_name == 'braak':
-    type_weight_factor = 0.3
-elif type_name == 'tangles':
-    type_weight_factor = 0.3
 else:
-    type_weight_factor = 0.3
+    if type_name == 'cerad':
+        type_weight_factor = 0.23
+    elif type_name == 'amyloid':
+        type_weight_factor = 0.3
+    elif type_name == 'cogdec':
+        type_weight_factor = 0.4
+    elif type_name == 'gpath':
+        type_weight_factor = 0.3
+    elif type_name == 'braak':
+        type_weight_factor = 0.3
+    elif type_name == 'tangles':
+        type_weight_factor = 0.3
+    else:
+        type_weight_factor = 0.3
     
     
 #split train test data and scaling on train data

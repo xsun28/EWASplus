@@ -39,7 +39,7 @@ class WGBS_Preprocess():
 
         bed = pd.read_csv(self.data_dir+file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')       
         bed.dropna(inplace=True)
-        bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1']+1,bed['pos2'])
+        bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1']+1,bed['pos1'])
         bed.drop(['pos1','pos2'],axis=1,inplace=True)
         bed['count'] = np.round(bed['total']*bed['percent']/100.0)
         bed.drop(['total','percent'],axis=1,inplace=True)

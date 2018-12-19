@@ -1,29 +1,36 @@
-#running script call as python ModelSelectionTuningAD.py
+#running script call as python ModelSelectionTuning.py -u True
 
 import sys
 from common import commons
 home = commons.home
-sys.path.append('/home/ec2-user/anaconda3/lib/python3.6/site-packages')
+#sys.path.append('/home/ec2-user/anaconda3/lib/python3.6/site-packages')
 import pandas as pd
 import numpy as np
 from sklearn.externals import joblib
 from importlib import reload
 from log import Logger
 from model_commons import *
+import argparse
+
+parser = argparse.ArgumentParser(description='Model Selection and Tuning for AD/Cd')
+parser.add_argument('-u',required=False,default=True,help='upsampling data',dest='upsampling',metavar='True or False?')
+args = parser.parse_args()
+up_sampling = args.upsampling
 
 
 ##features selecetd by traditional methods
-dataset = 'AD_CpG'
-type_name = commons.type_name  ## amyloid, cerad, tangles
-with_cell_type = commons.with_cell_type ## with or without
-dataset = dataset+'/'+type_name+with_cell_type
-up_sampling = True;
+dataset = commons.dataset
+if dataset == 'AD_CpG':
+    type_name = commons.type_name  ## amyloid, cerad, tangles
+    with_cell_type = commons.with_cell_type ## with or without
+    dataset = dataset+'/'+type_name+with_cell_type
+
 if up_sampling:
-    wtf_lo = 0.05 
-    wtf_hi = 0.1 
+    wtf_lo = 0.05 if dataset=="Cd" else 0.2
+    wtf_hi = 0.1 if dataset=="Cd" else 0.3
 else:
-    wtf_lo = 1.0/3 
-    wtf_hi = 0.5 
+    wtf_lo = 1.0/3 if dataset=="Cd" else 1 
+    wtf_hi = 0.5 if dataset=="Cd" else 1.5
     
 log_dir = home+'logs/'
 logger = Logger.Logger(log_dir,False).get_logger()
@@ -67,7 +74,6 @@ for i,col in enumerate(predicts_cv.columns):
     predicts_cv[col] = predicts_cv[col].astype(predicts_dtype[i])
     pred_probs_cv[col] = pred_probs_cv[col].astype(probs_dtype[i])
     
-methods_cv = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier']
 avg_score_columns = ['ensemble']+methods_cv
 avg_scores = {}
 for method in avg_score_columns:

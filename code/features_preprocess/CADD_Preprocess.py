@@ -40,7 +40,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
             pos = int(site[2])
             left = pos
             right = pos-1
-            while len(raw_scores_one_site) == 0:
+            while len(phred_one_site) == 0:
                 left = left-1
                 right = right+1
                 #print(chrm,left,right)

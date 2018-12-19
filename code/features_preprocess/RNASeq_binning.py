@@ -16,6 +16,7 @@ extra_storage = commons.extra_storage
 from features_preprocess import BED_binning
 import os
 import re
+import gc
 
 def RNASeq_Preprocessing(file):
     data_dir = extra_storage+'RNASeq/'
@@ -30,9 +31,9 @@ def RNASeq_Preprocessing(file):
 
 data_dir = extra_storage+'RNASeq/'
 print('here')
-pool = mp.Pool(processes=2)
+#pool = mp.Pool(processes=2)
 files = [line.rstrip('\n') for line in open(data_dir+'files.txt','r')][1:]
-pool.map(RNASeq_Preprocessing,files[3:])
+#pool.map(RNASeq_Preprocessing,files[3:])
 
 files = os.listdir(data_dir)
 pattern = '.*\.bed$'
@@ -40,6 +41,11 @@ reg = re.compile(pattern)
 files = [f for f in files if len(reg.findall(f))>0]
 RNASeq_h5s = home+'data/RNASeq/'
 for f in files:
+    single_file = f.split('/')[-1].split('.')[0]
+    if os.path.exists(RNASeq_h5s+single_file):
+        print(single_file+" already exists, skipping")
+        continue
     print("binning "+f+" ...")
-    rnaseq_binning = BED_binning.BED_binning(data_type='RNASeq',data_dir=data_dir,output=RNASeq_h5s)
+    rnaseq_binning = BED_binning.BED_binning(data_type='RNASeq',data_dir=data_dir,output=RNASeq_h5s)    
     rnaseq_binning.binning(single_file=single_file)
+    gc.collect()

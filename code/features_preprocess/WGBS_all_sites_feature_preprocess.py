@@ -89,6 +89,7 @@ else:
     
 start_pos = 0
 end_pos = len(selected_wgbs_tss)-1
+subprocess.check_output(['sed','-i','s/tss_end =.*/tss_end = '+str(end_pos)+'/','../prediction/prediction_commons.py'])
 ranges = np.arange(start_pos,end_pos,1000000)
 ranges = np.append(ranges,end_pos)    
 

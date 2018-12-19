@@ -1,10 +1,11 @@
-#running script: run as python all_features_preprocess.py -d AD_CpG
+#running script: run as python all_features_preprocess.py 
 
 import os
 import sys
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
+dataset = commons.dataset
 from features_preprocess import BED_binning
 from features_preprocess import BED_Preprocess, CADD_Preprocess,DANN_Preprocess,Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
 import subprocess
@@ -36,10 +37,10 @@ def nearest_tss(tss,sites_df):
 
 
 
-parser = argparse.ArgumentParser(description='Adding all features to all selected sites')
-parser.add_argument('-d',required=True,default='AD_CpG',help='disease dataset',dest='dataset',metavar='AD or Cd?')
-args = parser.parse_args()
-dataset = args.dataset # AD_CpG or Cd
+#parser = argparse.ArgumentParser(description='Adding all features to all selected sites')
+#parser.add_argument('-d',required=True,default='AD_CpG',help='disease dataset',dest='dataset',metavar='AD or Cd?')
+#args = parser.parse_args()
+#dataset = args.dataset # AD_CpG or Cd
 if dataset == 'AD_CpG':
     type_name = commons.type_name  ## amyloid, cerad, tangles
     with_cell_type = commons.with_cell_type ## with or without
@@ -50,7 +51,6 @@ additional_feature_file = home+'data/features/'+dataset+'/addtional_features'
 subprocess.call([home+'code/features_preprocess/Feature_export.R',home+'data',dataset,'False'])
 
 #single sites WGBS
-all_wgbs_sites_file = home+'data/WGBS/all_wgbs_sites_winid.csv'
 WGBS_h5s = home+'data/commons/WGBS_single_H5S'
 WGBS_proc = WGBS_preprocess.WGBS_Preprocess(h5s_file=WGBS_h5s,data_dir=extra_storage+'WGBS/',sites_file=sites_file,additional_feature_file=additional_feature_file,hg19_file= home+'data/WGBS/hg19_WGBS.csv')
 if not os.path.exists(WGBS_h5s):

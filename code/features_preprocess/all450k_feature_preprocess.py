@@ -1,9 +1,10 @@
-#running script: run as python all450k_feature_preprocess.py -d AD_CpG
+#running script: run as python all450k_feature_preprocess.py 
 import os
 import sys
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
+dataset = commons.dataset
 from features_preprocess import BED_binning
 from features_preprocess import BED_Preprocess,CADD_Preprocess_bedtools as CADD_Preprocess,DANN_Preprocess_bedtools as DANN_Preprocess,Eigen_Preprocess_bedtools as Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
 import subprocess
@@ -36,11 +37,11 @@ def nearest_tss(tss,sites_df):
     return merged
 
 
-#all 450k sites features process, ONLY NEED TO RUN ONCE
-parser = argparse.ArgumentParser(description='Adding all features to all 450K sites')
-parser.add_argument('-d',required=True,default='AD_CpG',help='disease dataset',dest='dataset',metavar='AD or Cd?')
-args = parser.parse_args()
-dataset = args.dataset # AD_CpG or Cd
+#####all 450k sites features process, ONLY NEED TO RUN ONCE
+#parser = argparse.ArgumentParser(description='Adding all features to all 450K sites')
+#parser.add_argument('-d',required=True,default='AD_CpG',help='disease dataset',dest='dataset',metavar='AD or Cd?')
+#args = parser.parse_args()
+#dataset = args.dataset # AD_CpG or Cd
 additional_feature_file = home+'data/features/'+dataset+'/all_450k_addtional_features'
 #if dataset == 'AD_CpG':
 #    type_name = commons.type_name  ## amyloid, cerad, tangles
@@ -52,7 +53,6 @@ sites_file = home+'data/'+dataset+'/all_450k_sites_winid.csv'
 subprocess.call([home+'code/features_preprocess/Feature_export.R',home+'data',dataset,'True'])
 
 #single sites WGBS
-all_wgbs_sites_file = home+'data/WGBS/all_wgbs_sites_winid.csv'
 WGBS_h5s = home+'data/commons/WGBS_single_H5S'
 WGBS_proc = WGBS_preprocess.WGBS_Preprocess(h5s_file=WGBS_h5s,data_dir=extra_storage+'WGBS/',sites_file=sites_file,additional_feature_file=additional_feature_file,hg19_file= home+'data/WGBS/hg19_WGBS.csv')
 if not os.path.exists(WGBS_h5s):

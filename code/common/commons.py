@@ -14,16 +14,17 @@ extra_storage = home+'data/raw/'
 os.environ["PYTHONPATH"] = home+"code/"
 sys.path[1] = os.environ["PYTHONPATH"]
 #extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
-import argparse
-parser = argparse.ArgumentParser(description='AD sites selection')
-parser.add_argument('-t',required=True,help='AD trait',dest='trait',metavar='AD traits')
-parser.add_argument('-w',required=False,default='with',help='with cell type or not',dest='with',metavar='with cell types')
+dataset = 'AD_CpG' #or Cd
+#import argparse
+#parser = argparse.ArgumentParser(description='AD sites selection')
+#parser.add_argument('-t',required=True,help='AD trait',dest='trait',metavar='AD traits')
+#parser.add_argument('-w',required=False,default='with',help='with cell type or not',dest='with',metavar='with cell types')
 #args = parser.parse_args()
 #type_name = args.trait  ## amyloid, cerad, tangles
 #with_cell_type = args.with ## with or without
-
-type_name = 'braak'  ## amyloid, cerad, tangles，cogdec，gpath，braak
-with_cell_type = 'with' ##with without
+if dataset == 'AD_CpG':
+    type_name = 'braak'  ## amyloid, cerad, tangles，cogdec，gpath，braak
+    with_cell_type = 'with' ##with without
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit

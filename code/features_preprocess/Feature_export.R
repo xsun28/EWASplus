@@ -6,8 +6,9 @@ args = commandArgs(trailingOnly=TRUE)
 home <- paste(args[1],'/',sep='')
 dataset = paste(args[2],'/',sep='')
 is_450k <- as.logical(args[3])
-tablename <- 'selected_450k_pos_winid.csv' if(is_450k) else 'selected_pos_winid.csv'
-filesuffix <- '_all_450k.csv' if(is_450k) else '_all.csv'
+tablename <-  ifelse(is_450k,'selected_450k_pos_winid.csv',
+'selected_pos_winid.csv')
+filesuffix <-  ifelse(is_450k,'_all_450k.csv','_all.csv') 
     
 all_sites_winid<-read.table(paste(home,dataset,tablename,sep=''),header=FALSE)
 dir <- paste(home,'features/',sep='')

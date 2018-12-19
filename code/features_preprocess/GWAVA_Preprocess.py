@@ -27,6 +27,8 @@ class GWAVA_Preprocess(object):
 		all_sites_df.sort_values(by=['chr', 'coordinate'], inplace=True)
 		all_sites_df.rename({'coordinate': 'base_end'}, axis='columns', inplace=True)
 		all_sites_df['base_start'] = all_sites_df['base_end'] - 1
+		all_sites_df['base_start'] = all_sites_df['base_start'].astype('i8')
+		all_sites_df['base_end'] = all_sites_df['base_end'].astype('i8')      
 		all_sites_list = [tuple(x) for x in all_sites_df[['chr', 'base_start', 'base_end']].values]
 		all_sites_BedTool = pybedtools.BedTool(all_sites_list)
 		gwava_file = os.path.join(self.data_dir, 'gwava_scores.bed.gz')

@@ -14,14 +14,15 @@ def convert_chr_to_num(data,chrs=None):
         x[i] = int(x[i][3:])
         return x
     if data['chr'].dtype != np.dtype('int64'):
-        i = data.columns.get_loc('chr')
         if chrs is not None:
             chr_str = [str(chrm) for chrm in chrs]
             print(chr_str)
-        l = [f(x) for x in data.values if x[i].startswith('chr') and x[i][3:] in chr_str ]
-        return pd.DataFrame(l,columns=data.columns)
-    else:
-        return data
+        data = data[data['chr'].apply(lambda x: x.startswith('chr') and x[3:] in chr_str)]
+        data['chr'] = data['chr'].apply(lambda x: int(x[3:]))
+        #i = data.columns.get_loc('chr')
+        #l = [f(x) for x in data.values if x[i].startswith('chr') and x[i][3:] in chr_str ]
+        #return pd.DataFrame(l,columns=data.columns)
+    return data
 #-----------------------------------
 def read_wins(win_path,chrs=None):
     wincols=['chr','start','end']

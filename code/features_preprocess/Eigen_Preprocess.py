@@ -44,7 +44,7 @@ class Eigen_Preprocess(object):
             right = pos-1
             eigen_file = self.data_dir+'Eigen_hg19_noncoding_annot_chr'+chrm+'.tab.bgz'
             tabix = pysam.Tabixfile(eigen_file)
-            while len(raw_scores_one_site) == 0:
+            while len(phred_one_site) == 0:
                 left = left-1
                 right = right+1
                 for row in tabix.fetch(chrm,left,right,parser=pysam.asTuple()):
