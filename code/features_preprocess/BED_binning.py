@@ -42,7 +42,7 @@ class BED_binning(object):
         if self.data_type == 'WGBS':
             bed = self.read_WGBS((self.data_dir+file))
         else:
-            bed = pd.read_csv(file,usecols=[0,1,2,5],header=None,names=['chr','pos1','pos2','strand'],sep='\s+')
+            bed = pd.read_csv(self.data_dir+file,usecols=[0,1,2,5],header=None,names=['chr','pos1','pos2','strand'],sep='\s+')
             bed['chr'] = bed['chr'].apply(lambda x: 'chr'+x.split('.')[-1] if not x.startswith('chr') else x)
             #bed = self.read_bed((self.data_dir+file))
         bed = get_winid.convert_chr_to_num(bed,self.chrs)
