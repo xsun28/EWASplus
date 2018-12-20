@@ -43,3 +43,14 @@ def get_winid(feature_wins,dataset,sorted=False,start_index=1):
     dataset_with_winid = pd.merge(dataset,feature_wins, on=['chr','start'],how='left')
     dataset_with_winid.rename(columns={'index':'winid'},inplace=True)
     return dataset_with_winid
+
+#-------------------------------------
+def get_window_reads(feature_wins,dataset,start_index=1):
+    dataset['window_start'] = np.floor((dataset['pos1']-start_index)/200.0)*200+1
+    dataset['window_end'] = dataset['window_start']+200
+    dataset['window_start_reads'] = np.where(dataset['window_end']>=dataset['pos2'],1,(dataset['window_end']-dataset['pos1'])/(dataset['pos2']-dataset['pos1']))
+    dataset['window_end_reads'] = np.where(dataset['window_end']>=dataset['pos2'],0,(dataset['pos2']-dataset['window_end'])/(dataset['pos2']-dataset['pos1']))
+    dataset = pd.DataFrame(dataset[['chr','window_start','window_start_reads']].values.tolist()+dataset[['chr','window_end','window_end_reads']].values.tolist(),columns=['chr','start','count']).sort_values(['chr','start'])
+    dataset = pd.merge(dataset,feature_wins, on=['chr','start'],how='left')
+    dataset.rename(columns={'index':'winid'},inplace=True)
+    return dataset

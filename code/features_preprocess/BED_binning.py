@@ -25,23 +25,26 @@ class BED_binning(object):
         self.chrs = chrs
         self.data_type = data_type
         self.sorted = sorted
-
-    def read_bed(self,file):
-        bed = pd.read_csv(file,usecols=[0,1,2,5],header=None,names=['chr','pos1','pos2','strand'],sep='\s+')
-        bed['chr'] = bed['chr'].apply(lambda x: 'chr'+x.split('.')[-1] if not x.startswith('chr') else x)
-        bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1']+1,bed['pos2'])
-        bed.drop(['pos1','pos2'],axis=1,inplace=True)
-        bed['count'] = 1
-        print(bed['chr'].unique())
-        #    bed_counts = bed.groupby(['chr','coordinate']).aggregate({'count':sum})
-        return bed
+    
+    
+#    def read_bed(self,file):
+#        bed = pd.read_csv(file,usecols=[0,1,2,5],header=None,names=['chr','pos1','pos2','strand'],sep='\s+')
+#        bed['chr'] = bed['chr'].apply(lambda x: 'chr'+x.split('.')[-1] if not x.startswith('chr') else x)
+#        bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1']+1,bed['pos2'])
+#        bed.drop(['pos1','pos2'],axis=1,inplace=True)
+#        bed['count'] = 1
+#        print(bed['chr'].unique())
+#        #    bed_counts = bed.groupby(['chr','coordinate']).aggregate({'count':sum})
+#        return bed
 
     def cal_counts(self,h5s,file,wins):
         print('start process '+file)
         if self.data_type == 'WGBS':
             bed = self.read_WGBS((self.data_dir+file))
         else:
-            bed = self.read_bed((self.data_dir+file))
+            bed = pd.read_csv(file,usecols=[0,1,2,5],header=None,names=['chr','pos1','pos2','strand'],sep='\s+')
+            bed['chr'] = bed['chr'].apply(lambda x: 'chr'+x.split('.')[-1] if not x.startswith('chr') else x)
+            #bed = self.read_bed((self.data_dir+file))
         bed = get_winid.convert_chr_to_num(bed,self.chrs)
         
         if self.data_type == 'WGBS':
@@ -49,7 +52,7 @@ class BED_binning(object):
             bed = bed.drop(['chr_y','coordinate_y','oldChr','oldCoordinate'],axis=1).rename(columns={'chr_x':'chr','coordinate_x':'coordinate'}).sort_values(['chr','coordinate']).reset_index(drop=True)
             bed_counts = bed.groupby(['winid']).aggregate({'count':np.mean}).reset_index()
         else:
-            bed = get_winid.get_winid(wins,bed,self.sorted,start_index=0).dropna()#.sort_values(['winid'])
+            bed = get_winid.get_window_reads(wins,bed,start_index=0).dropna()#.sort_values(['winid'])
             bed_counts = bed.groupby(['winid']).aggregate({'count':sum}).reset_index()
             print(bed)
             del bed
