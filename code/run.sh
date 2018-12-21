@@ -1,4 +1,30 @@
 #!/bin/bash
+containsElement () {
+  while [[ $# -gt 0 ]]; do
+        [[ "$1" == "$model" ]] && return 1
+  shift
+  done
+  return 0
+}
+
+checkMethods () {
+   r=1
+   for model in ${models[@]}; do
+        containsElement ${support_models[@]}
+	if [[ $? -ne 1 ]]; then
+        	r=$((r*$?))
+		echo "wrong model input: $model"
+	else 
+		r=$((r*$?))
+	fi 
+   done
+   return
+}
+
+
+
+
+
 echo "Start to get all WGBS sites and transform from hg38 to hg19..."
 
 WGBSSitesFile=../data/WGBS/all_wgbs_sites_winid.csv
@@ -81,8 +107,16 @@ if [[ "$dataset" == "AD" ]]; then
 			else
 				retrain=False
 			fi
-			
-			read -p "Select models for prediction (LogisticRegression xgbooster SVC or RandomForestClassifier)" models
+		        support_models=(LogisticRegression xgbooster SVC RandomForestClassifier) 
+			r=0
+			while [[ $r -ne 1 ]]; do
+
+				read -p "Select models for prediction (${support_models[*]}): " models
+				checkMethods
+				if [[ $r -eq 1 ]]; then
+ 					break
+				fi
+			done	
 			#python prediction/WGBS_prediction.py -r $retrain -u True -m $models
 	done
 	read -p "Combine results for all AD traits? (Y/N)" combine
@@ -130,8 +164,16 @@ elif [[ "$dataset" == "Cd" ]]; then
                         else
                                 retrain=False
                         fi
+			support_models=(LogisticRegression xgbooster SVC RandomForestClassifier)
+                        r=0
+                        while [[ $r -ne 1 ]]; do
 
-                        read -p "Select models for prediction (LogisticRegression xgbooster SVC or RandomForestClassifier)" models
+                                read -p "Select models for prediction (${support_models[*]}): " models
+                                checkMethods
+                                if [[ $r -eq 1 ]]; then
+                                        break
+                                fi
+                        done
                         #python prediction/WGBS_prediction.py -r $retrain -u True -m $models
 	
 else
