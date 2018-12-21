@@ -1,4 +1,4 @@
-#running script run as python WGBS_top500_prediction_AD.py -m LogisticRegression xgbooster
+#running script run as python WGBS_alltraits_prediction_AD.py -m LogisticRegression xgbooster
 import sys
 from common import commons
 home = commons.home

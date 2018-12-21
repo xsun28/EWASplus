@@ -22,7 +22,7 @@ def convert_chr_to_num(data,chrs=None):
         #i = data.columns.get_loc('chr')
         #l = [f(x) for x in data.values if x[i].startswith('chr') and x[i][3:] in chr_str ]
         #return pd.DataFrame(l,columns=data.columns)
-    return data
+    return data.reset_index(drop=True)
 #-----------------------------------
 def read_wins(win_path,chrs=None):
     wincols=['chr','start','end']
