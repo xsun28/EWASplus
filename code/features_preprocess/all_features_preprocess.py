@@ -1,6 +1,8 @@
 #running script: run as python all_features_preprocess.py 
 
 import os
+import pandas as pd
+import numpy as np
 import sys
 from common import commons
 home = commons.home

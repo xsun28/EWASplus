@@ -31,9 +31,9 @@ def RNASeq_Preprocessing(file):
 
 data_dir = extra_storage+'RNASeq/'
 print('here')
-#pool = mp.Pool(processes=2)
+pool = mp.Pool(processes=2)
 files = [line.rstrip('\n') for line in open(data_dir+'files.txt','r')][1:]
-#pool.map(RNASeq_Preprocessing,files[3:])
+pool.map(RNASeq_Preprocessing,files[3:])
 
 files = os.listdir(data_dir)
 pattern = '.*\.bed$'

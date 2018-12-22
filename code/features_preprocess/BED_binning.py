@@ -43,7 +43,8 @@ class BED_binning(object):
             bed = self.read_WGBS((self.data_dir+file))
         else:
             bed = pd.read_csv(self.data_dir+file,usecols=[0,1,2,5],header=None,names=['chr','pos1','pos2','strand'],sep='\s+')
-            bed['chr'] = bed['chr'].apply(lambda x: 'chr'+x.split('.')[-1] if not x.startswith('chr') else x)
+            bed = bed[bed['chr'].apply(lambda x: x.startswith('chr'))]
+            #bed['chr'] = bed['chr'].apply(lambda x: 'chr'+x.split('.')[-1] if not x.startswith('chr') else x)
             #bed = self.read_bed((self.data_dir+file))
         bed = get_winid.convert_chr_to_num(bed,self.chrs)
         
@@ -80,16 +81,16 @@ class BED_binning(object):
                 self.cal_counts(h5s,single_file+'.bed',wins)
 
                 
-    def read_WGBS(self,file):
-        bed = pd.read_csv(file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')
-        bed.dropna(inplace=True)
-        bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1']+1,bed['pos2'])
-        bed.drop(['pos1','pos2'],axis=1,inplace=True)
-        bed['count'] = np.round(bed['total']*bed['percent']/100.0)
-        bed.drop(['total','percent'],axis=1,inplace=True)
-        bed = bed.groupby(['chr','coordinate']).aggregate({'count':sum}).reset_index()
-        #    bed_counts = bed.groupby(['chr','coordinate']).aggregate({'count':sum})
-        return bed
+#    def read_WGBS(self,file):
+#        bed = pd.read_csv(file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')
+#        bed.dropna(inplace=True)
+#        bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1']+1,bed['pos2'])
+#        bed.drop(['pos1','pos2'],axis=1,inplace=True)
+#        bed['count'] = np.round(bed['total']*bed['percent']/100.0)
+#        bed.drop(['total','percent'],axis=1,inplace=True)
+#        bed = bed.groupby(['chr','coordinate']).aggregate({'count':sum}).reset_index()
+#        #    bed_counts = bed.groupby(['chr','coordinate']).aggregate({'count':sum})
+#        return bed
 
 
 

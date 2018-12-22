@@ -11,7 +11,7 @@ from pyliftover import LiftOver
 
 def read_WGBS(file):
     bed = pd.read_csv(file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')
-    bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1']+1,bed['pos1'])
+    bed['coordinate'] = np.where(bed['strand']=='+',bed['pos1'],bed['pos1']-1)  ##read 0-based WGBS bed, merge +/- strand
     bed.drop(['pos1','pos2'],axis=1,inplace=True)
     bed['count'] = np.round(bed['total']*bed['percent']/100.0)
     bed.drop(['total','percent'],axis=1,inplace=True)
@@ -32,9 +32,8 @@ def hg38tohg19(row):
                 Chr = 23
             elif Chr[3:] == 'Y':
                 Chr = 24
-        if strand == '+':
-            start = start+1
-        end = start+1
+        start = start+1 ##convert to 1-bbased WGBS coordinate
+        end = start
         return [Chr,start,end,row[1]['chr'],row[1]['start']]
     else:
         return [None,None,None,row[1]['chr'],row[1]['start']]
@@ -52,13 +51,13 @@ hg19_wgbs_file = home+'data/'+dataset+'/hg19_WGBS.csv'
 ###get all WGBS sites only need to run once
 data_dir = extra_storage+'WGBS/'
 file = data_dir+'ENCFF844EFX.bed'
-wgbs_file = home+'data/'+dataset+'/WGBS.bed'
+#wgbs_file = home+'data/'+dataset+'/WGBS.bed'
 bed = read_WGBS(file)
 bed = get_winid.convert_chr_to_num(bed,chrs).sort_values(['chr','coordinate'])
 bed.rename({'coordinate':'start'},axis=1,inplace=True)
 bed['end'] = bed['start']+1
 bed.drop(['count'],axis=1,inplace=True)
-bed.to_csv(wgbs_file,columns=['chr','start','end'],index=False,sep="\t")
+#bed.to_csv(wgbs_file,columns=['chr','start','end'],index=False,sep="\t")
 
 
 ##convert to hg19, only need run once

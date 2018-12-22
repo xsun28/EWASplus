@@ -1,6 +1,8 @@
 #running script: run as python all450k_feature_preprocess.py 
 import os
 import sys
+import pandas as pd
+import numpy as np
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
