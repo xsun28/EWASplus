@@ -35,6 +35,8 @@ if dataset == 'Cd':
 else:
     if type_name == 'cerad':
         type_weight_factor = 0.23
+    elif type_name == 'ceradaf':
+        type_weight_factor = 0.25
     elif type_name == 'amyloid':
         type_weight_factor = 0.3
     elif type_name == 'cogdec':

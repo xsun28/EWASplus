@@ -105,7 +105,7 @@ if reset_tracker:
                            'rnaseq':np.zeros_like(ranges),'cadd':np.zeros_like(ranges),'dann':np.zeros_like(ranges),
                             'eigen':np.zeros_like(ranges),'genocanyon':np.zeros_like(ranges),'gwava':np.zeros_like(ranges)})
     tracker = tracker.set_index('start')
-    tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
 ranges = np.append(ranges,end_pos)    
 
 for i in np.arange(len(ranges)-1):
@@ -119,19 +119,19 @@ for i in np.arange(len(ranges)-1):
     additional_feature_file = home+'data/features/'+dataset+'/addtional_features_'+str(start)+'_'+str(end)
     
     ###1806 features
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'1806features'] == 1:
         print("1806 features "+str(start)+"_"+str(end)+" already processed")
     else:
         subprocess.call([home+'code/features_preprocess/Feature_export.R',home+'data',dataset,'False'])
         tracker.loc[start,'1806features'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()
 
         
     ###WGBS 
     WGBS_h5s = home+'data/commons/WGBS_single_H5S'
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'wgbs'] == 1:
         print("WGBS features for "+str(start)+"_"+str(end)+" already processed")
     else:
@@ -140,12 +140,12 @@ for i in np.arange(len(ranges)-1):
             WGBS_proc.process()
         WGBS_proc.scores()
         tracker.loc[start,'wgbs'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()
         
     ###ATAC
     ATAC_h5s = home+'data/commons/ATAC_H5S'
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'atac'] == 1:
         print("ATAC for "+str(start)+"_"+str(end)+" already processed")
     else:
@@ -158,13 +158,13 @@ for i in np.arange(len(ranges)-1):
             atac_process = BED_Preprocess.BED_Preprocessing(h5s_file=ATAC_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file,data_type='ATAC')
             atac_process.process()
         tracker.loc[start,'atac'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect() 
         
     
     ###RNASeq
     RNASeq_h5s = home+'data/RNASeq/'
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'rnaseq'] == 1:
         print("RNASeq for "+str(start)+"_"+str(end)+" already processed")
     else:
@@ -176,45 +176,45 @@ for i in np.arange(len(ranges)-1):
             rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
             rnaseq_process.process()
         tracker.loc[start,'rnaseq'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()
         
     
     ###CADD
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'cadd'] == 1:
         print("CADD for "+str(start)+"_"+str(end)+" already processed")
     else:    
         cadd_preprocess = CADD_Preprocess.CADD_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
         cadd_preprocess.process()
         tracker.loc[start,'cadd'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()
     
     ###DANN
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'dann'] == 1:
         print("DANN for "+str(start)+"_"+str(end)+" already processed")
     else: 
         dann_preprocess = DANN_Preprocess.DANN_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
         dann_preprocess.process()
         tracker.loc[start,'dann'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()
     
     ###eigen
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'eigen'] == 1:
         print("Eigen for "+str(start)+"_"+str(end)+" already processed")
     else: 
         eigen_preprocess = Eigen_Preprocess.Eigen_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
         eigen_preprocess.process()        
         tracker.loc[start,'eigen'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()
     
     ###genocanyon
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'genocanyon'] == 1:
         print("genocanyon for "+str(start)+"_"+str(end)+" already processed")
     else:      
@@ -226,19 +226,21 @@ for i in np.arange(len(ranges)-1):
         else:
             print('Running GenoCanyon R script...')
             subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
+            genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
+            genocanyon_preprocess.process('selected_site_scores.txt')
         tracker.loc[start,'genocanyon'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()
         
     ###gwava
-    tracker = pd.read_pickle(home+'data/'+dataset+'tracker.pkl')
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
     if tracker.loc[start,'gwava'] == 1:
         print("GWAVA for "+str(start)+"_"+str(end)+" already processed")
     else:
         gwava_preprocess = GWAVA_Preprocess.GWAVA_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
         gwava_preprocess.process()
         tracker.loc[start,'gwava'] = 1
-        tracker.to_pickle(home+'data/'+dataset+'tracker.pkl')
+        tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()  
     
     selected_wgbs = pd.read_csv(home+'data/'+dataset+'/all_sites_winid.csv')

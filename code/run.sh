@@ -60,7 +60,7 @@ fi
 read -p " Enter the name of the dataset (AD/Cd): " dataset
 
 if [[ "$dataset" == "AD" ]]; then
-	traits=(amyloid cerad tangles cogdec gpath braak)
+	traits=(amyloid cerad ceradaf tangles cogdec gpath braak)
 	sed -i "s/dataset = .*/dataset = 'AD_CpG'/" common/commons.py
 	read -p "Preprocess features for AD 450k sites? (Y/N)" arrayFeatures
 	if [[ "${arrayFeatures}" == "Y" ]]; then
@@ -90,7 +90,7 @@ if [[ "$dataset" == "AD" ]]; then
 		read -p "Features selection for ${trait}? (Y/N)" traitFeatureSelection
 		if [[ "$traitFeatureSelection" == "Y" ]]; then
 			echo "Selecting fetures for ${trait}"
-			#python features_selection/features_selection.py 
+			#python features_selection/feature_selection.py 
 		fi
 		
 		read -p "Hyperparameter tuning of models for ${trait}? (Y/N)" traitModelTuning
@@ -147,7 +147,7 @@ elif [[ "$dataset" == "Cd" ]]; then
                 read -p "Features selection for Cd? (Y/N)" featureSelection
                 if [[ "$featureSelection" == "Y" ]]; then
                         echo "Selecting fetures for Cd"
-                        #python features_selection/features_selection.py
+                        #python features_selection/feature_selection.py
                 fi
 
                 read -p "Hyperparameter tuning of models for Cd? (Y/N)" modelTuning

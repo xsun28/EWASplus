@@ -14,16 +14,16 @@ extra_storage = home+'data/raw/'
 os.environ["PYTHONPATH"] = home+"code/"
 sys.path[1] = os.environ["PYTHONPATH"]
 #extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
-dataset = 'AD_CpG' #or Cd
+dataset = 'AD_CpG'
 #import argparse
 #parser = argparse.ArgumentParser(description='AD sites selection')
 #parser.add_argument('-t',required=True,help='AD trait',dest='trait',metavar='AD traits')
 #parser.add_argument('-w',required=False,default='with',help='with cell type or not',dest='with',metavar='with cell types')
 #args = parser.parse_args()
-#type_name = args.trait  ## amyloid, cerad, tangles
+#type_name = 'braak'
 #with_cell_type = args.with ## with or without
 if dataset == 'AD_CpG':
-    type_name = 'braak'  ## amyloid, cerad, tangles，cogdec，gpath，braak
+    type_name = 'braak'
     with_cell_type = 'with' ##with without
 import pandas as pd
 import numpy as np
@@ -64,8 +64,8 @@ def find_nearest_450ksites(window,sites,wgbs):
     return nearby_all_sites.set_index(['wgbs_chr','wgbs_coordinate'])  
 #-----------------------------------------------------------------------------
 def train_test_split(data,test_size=0.1,scaler='standard'):
-    total_dataset = data.copy()
-    total_dataset = total_dataset.reset_index().drop('index',axis=1)   #reset index or split below will generate filtered index and NAN values
+    total_dataset = 'AD_CpG'
+    total_dataset = 'AD_CpG'
     split = StratifiedShuffleSplit(n_splits=1,test_size=test_size,random_state=17)
     for train_index, test_index in split.split(total_dataset,total_dataset['label']):
         train_set = total_dataset.ix[train_index]

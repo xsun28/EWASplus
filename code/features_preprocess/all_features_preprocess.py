@@ -98,6 +98,8 @@ if os.path.exists(genocanyon_scores):
 else:
     print('Running GenoCanyon R script...')
     subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
+    genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
+    genocanyon_preprocess.process('selected_site_scores.txt')
 
 gwava_preprocess = GWAVA_Preprocess.GWAVA_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
 gwava_preprocess.process()    

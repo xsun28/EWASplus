@@ -68,7 +68,7 @@ if (not os.path.exists(model_path)) or retrain:
 
 ###########
 print('Starting WGBS prediction of '+dataset+'...')
-ranges = np.arange(prediction_commons.tss_start,prediction_commons.tss_end,1000000)
+ranges = np.arange(prediction_commons.tss_start,prediction_commons.tss_end,2000000)
 ranges = np.append(ranges,prediction_commons.tss_end)
 print('sites ranges are '+ranges)
 
