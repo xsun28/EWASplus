@@ -17,12 +17,12 @@ import gc
 import argparse
 
 parser = argparse.ArgumentParser(description='WGBS sites methylation prediction')
-parser.add_argument('-r',required=False,default=False,help='retrain prediction mode',dest='retrain',metavar='True or False?')
-parser.add_argument('-u',required=False,default=True,help='upsampling data',dest='upsampling',metavar='True or False?')
+parser.add_argument('-r',required=False,default='False',help='retrain prediction mode',dest='retrain',metavar='True or False?')
+parser.add_argument('-u',required=False,default='True',help='upsampling data',dest='upsampling',metavar='True or False?')
 parser.add_argument('-m',required=False,default=['LogisticRegression','xgbooster'],help='prediction methods',dest='methods',metavar='LogisticRegression xgbooster')
 args = parser.parse_args()
-retrain = args.retrain
-up_sampling = args.upsampling
+retrain = (args.retrain=='True')
+up_sampling = (args.upsampling=='True')
 methods = args.methods
 
 dataset = commons.dataset

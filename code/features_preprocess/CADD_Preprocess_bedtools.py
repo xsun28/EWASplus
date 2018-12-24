@@ -70,7 +70,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
             del chr_sites
             gc.collect()
         all_sites_closest = pd.DataFrame(all_sites_closest,columns=['chr','coordinate','phred','distiance_to_nearest_CADD'])
-        all_sites_closest = all_sites_closest.groupby(['chr','coordinate']).apply(mean_max).reset_index()
+        all_sites_closest = all_sites_closest.groupby(['chr','coordinate']).apply(self.mean_max).reset_index()
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             h5s['CADD'] = all_sites_closest
 

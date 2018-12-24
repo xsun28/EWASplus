@@ -38,13 +38,13 @@ echo "Got all WGBS hg19 sites"
 read -p "Preprocess features for all WGBS sites? (Y/N) " allWGBSFeaturesProcess
 if [[ "$allWGBSFeaturesProcess" == "Y" ]]; then
 	read -p "For all WGBS sites or nearest 100k sites to TSS (True/False)" all
-
+	read -p "Reset features process progress tracker? (True/False)" resetTracker
 	if [[ "$all" == "True" ]]; then
 		echo good
-		#python features_preprocess/WGBS_all_sites_feature_preprocess.py -a True
+		#python features_preprocess/WGBS_all_sites_feature_preprocess.py -a True -r $resetTracker
 	elif [[ "$all" == "False" ]]; then
 		echo good
-		#python features_preprocess/WGBS_all_sites_feature_preprocess.py -a False
+		#python features_preprocess/WGBS_all_sites_feature_preprocess.py -a False -r $resetTracker
 	else
 		echo "wrong input"
 		exit

@@ -13,9 +13,9 @@ from model_commons import *
 import argparse
 
 parser = argparse.ArgumentParser(description='Model Selection and Tuning for AD/Cd')
-parser.add_argument('-u',required=False,default=True,help='upsampling data',dest='upsampling',metavar='True or False?')
+parser.add_argument('-u',required=False,default='True',help='upsampling data',dest='upsampling',metavar='True or False?')
 args = parser.parse_args()
-up_sampling = args.upsampling
+up_sampling = (args.upsampling == 'True')
 
 
 ##features selecetd by traditional methods
