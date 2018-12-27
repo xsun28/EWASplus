@@ -168,13 +168,10 @@ for i in np.arange(len(ranges)-1):
     if tracker.loc[start,'rnaseq'] == 1:
         print("RNASeq for "+str(start)+"_"+str(end)+" already processed")
     else:
-        if len(os.listdir(RNASeq_h5s))>0:
-            rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
-            rnaseq_process.process()
-        else:
-            subprocess.call(['python',home+'code/feature_preprocess/RNASeq_binning.py'])
-            rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
-            rnaseq_process.process()
+        RNASeqOutput = subprocess.check_output(['python',home+'code/feature_preprocess/RNASeq_binning.py'])
+        print(RNASeqOutput)
+        rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
+        rnaseq_process.process()
         tracker.loc[start,'rnaseq'] = 1
         tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()

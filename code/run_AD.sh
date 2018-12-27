@@ -1,9 +1,9 @@
 #!/bin/bash
         
-traits=(amyloid cerad tangles cogdec gpath braak)
+traits=(braak)
 sed -i "s/dataset = .*/dataset = 'AD_CpG'/" common/commons.py
-echo "Preprocess features for all 450K WGBS sites"
-python features_preprocess/all450k_feature_preprocess.py
+#echo "Preprocess features for all 450K WGBS sites"
+#python features_preprocess/all450k_feature_preprocess.py
 for trait in ${traits[@]}; do
 	echo "start processing $trait..."
         sed -i "s/type_name = .*/type_name = '$trait'/" common/commons.py

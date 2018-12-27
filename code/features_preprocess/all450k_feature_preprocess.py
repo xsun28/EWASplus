@@ -8,7 +8,7 @@ home = commons.home
 extra_storage = commons.extra_storage
 dataset = commons.dataset
 from features_preprocess import BED_binning
-from features_preprocess import BED_Preprocess,CADD_Preprocess_bedtools as CADD_Preprocess,DANN_Preprocess_bedtools as DANN_Preprocess,Eigen_Preprocess_bedtools as Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
+from features_preprocess import BED_Preprocess,CADD_Preprocess,DANN_Preprocess, Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
 import subprocess
 import get_winid
 import argparse
@@ -72,12 +72,9 @@ else:
     atac_process.process()  
     
 RNASeq_h5s = home+'data/RNASeq/'
-if len(os.listdir(RNASeq_h5s))>0:
-    rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
-    rnaseq_process.process()
-else:
-    subprocess.call(['python',home+'code/feature_preprocess/RNASeq_binning.py'])
-    rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
+RNASeqOutput = subprocess.check_output(['python',home+'code/feature_preprocess/RNASeq_binning.py'])
+print(RNASeqOutput)
+rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
     rnaseq_process.process()
     
 cadd_preprocess = CADD_Preprocess.CADD_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)

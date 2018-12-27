@@ -49,22 +49,22 @@ all_wgbs_sites_file = home+'data/'+dataset+'/all_wgbs_sites_winid.csv'
 hg19_wgbs_file = home+'data/'+dataset+'/hg19_WGBS.csv'
 
 ###get all WGBS sites only need to run once
-data_dir = extra_storage+'WGBS/'
-file = data_dir+'ENCFF844EFX.bed'
+#data_dir = extra_storage+'WGBS/'
+#file = data_dir+'ENCFF844EFX.bed'
 #wgbs_file = home+'data/'+dataset+'/WGBS.bed'
-bed = read_WGBS(file)
-bed = get_winid.convert_chr_to_num(bed,chrs).sort_values(['chr','coordinate'])
-bed.rename({'coordinate':'start'},axis=1,inplace=True)
-bed['end'] = bed['start']+1
-bed.drop(['count'],axis=1,inplace=True)
+#bed = read_WGBS(file)
+#bed = get_winid.convert_chr_to_num(bed,chrs).sort_values(['chr','coordinate'])
+#bed.rename({'coordinate':'start'},axis=1,inplace=True)
+#bed['end'] = bed['start']+1
+#bed.drop(['count'],axis=1,inplace=True)
 #bed.to_csv(wgbs_file,columns=['chr','start','end'],index=False,sep="\t")
 
 
-##convert to hg19, only need run once
-lo = LiftOver('hg38', 'hg19')
-coord_hg19 = [hg38tohg19(row)for row in bed.iterrows()]
-coord_hg19 = pd.DataFrame(coord_hg19,columns=['chr','coordinate','end','hg38chr','hg38coordinate']).query('chr in @chrs')
-coord_hg19.dropna().drop_duplicates(['chr','coordinate']).to_csv(hg19_wgbs_file,index=False)
+###convert to hg19, only need run once
+#lo = LiftOver('hg38', 'hg19')
+#coord_hg19 = [hg38tohg19(row)for row in bed.iterrows()]
+#coord_hg19 = pd.DataFrame(coord_hg19,columns=['chr','coordinate','end','hg38chr','hg38coordinate']).query('chr in @chrs')
+#coord_hg19.dropna().drop_duplicates(['chr','coordinate']).to_csv(hg19_wgbs_file,index=False)
 
 #using WGBS(hg19) sites only run once
 hg19_wgbs = pd.read_csv(hg19_wgbs_file,usecols=[0,1,3,4]).sort_values(['hg38chr','hg38coordinate']).reset_index(drop=True)

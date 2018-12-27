@@ -35,15 +35,18 @@ class BED_Preprocessing(object):
                     counts_at_targets = pd.merge(counts_at_targets,bed_counts,on=['winid'],how='left')
                     counts_at_targets[key[1:]+'_'+self.data_type+'_counts'].fillna(0,inplace=True)
                     print(key+' is done')
-        else:
-            for f in os.listdir(self.h5s_file):
+        elif self.data_type == 'RNASeq':
+            for f in [f for f in os.listdir(self.h5s_file) if os.path.isfile(f)]:
                 with pd.HDFStore(self.h5s_file+f,'r') as h5s:
+                    print("processing "+self.h5s_file+f)
                     for key in h5s.keys():
                         bed_counts = h5s[key]
                         counts_at_targets = pd.merge(counts_at_targets,bed_counts,on=['winid'],how='left')
                         counts_at_targets[key[1:]+'_'+self.data_type+'_counts'].fillna(0,inplace=True)
                         print(key+' is done')
-        
+        else:
+            print('Unsupported data type: '+self.data_type)
+            exit()
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             h5s[self.data_type] = counts_at_targets       
 ##############################   
