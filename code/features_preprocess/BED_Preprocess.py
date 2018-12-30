@@ -36,7 +36,7 @@ class BED_Preprocessing(object):
                     counts_at_targets[key[1:]+'_'+self.data_type+'_counts'].fillna(0,inplace=True)
                     print(key+' is done')
         elif self.data_type == 'RNASeq':
-            for f in [f for f in os.listdir(self.h5s_file) if os.path.isfile(f)]:
+            for f in [f for f in os.listdir(self.h5s_file) if os.path.isfile(os.path.join(self.h5s_file, f))]:
                 with pd.HDFStore(self.h5s_file+f,'r') as h5s:
                     print("processing "+self.h5s_file+f)
                     for key in h5s.keys():

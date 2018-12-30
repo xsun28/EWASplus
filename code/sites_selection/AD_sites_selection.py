@@ -3,7 +3,7 @@
 import sys
 import pandas as pd
 import numpy as np
-from common import commons 
+from common import commons
 home = commons.home
 from log import Logger
 import os

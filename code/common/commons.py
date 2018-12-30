@@ -23,7 +23,7 @@ dataset = 'AD_CpG'
 #type_name = 'braak'
 #with_cell_type = args.with ## with or without
 if dataset == 'AD_CpG':
-    type_name = 'braak'
+    type_name = 'cerad'
     with_cell_type = 'with' ##with without
 import pandas as pd
 import numpy as np

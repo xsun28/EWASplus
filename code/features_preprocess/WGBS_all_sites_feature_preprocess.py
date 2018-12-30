@@ -168,7 +168,7 @@ for i in np.arange(len(ranges)-1):
     if tracker.loc[start,'rnaseq'] == 1:
         print("RNASeq for "+str(start)+"_"+str(end)+" already processed")
     else:
-        RNASeqOutput = subprocess.check_output(['python',home+'code/feature_preprocess/RNASeq_binning.py'])
+        RNASeqOutput = subprocess.check_output(['python',home+'code/features_preprocess/RNASeq_binning.py'])
         print(RNASeqOutput)
         rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
         rnaseq_process.process()

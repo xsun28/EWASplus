@@ -69,6 +69,7 @@ hg19_wgbs_file = home+'data/'+dataset+'/hg19_WGBS.csv'
 #using WGBS(hg19) sites only run once
 hg19_wgbs = pd.read_csv(hg19_wgbs_file,usecols=[0,1,3,4]).sort_values(['hg38chr','hg38coordinate']).reset_index(drop=True)
 #hg19_wgbs = get_winid.convert_chr_to_num(hg19_wgbs,chrs)
+print('Obtaining winid of all hg19 wgbs sites...')
 all_sites = get_winid.get_winid(wins,hg19_wgbs,True).dropna()
 all_sites['winid'] = all_sites['winid'].astype('i8')
 all_sites.to_csv(all_wgbs_sites_file,index=False)

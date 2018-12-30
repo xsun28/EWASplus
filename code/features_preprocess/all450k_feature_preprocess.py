@@ -72,7 +72,7 @@ else:
     atac_process.process()  
     
 RNASeq_h5s = home+'data/RNASeq/'
-RNASeqOutput = subprocess.check_output(['python',home+'code/feature_preprocess/RNASeq_binning.py'])
+RNASeqOutput = subprocess.check_output(['python',home+'code/features_preprocess/RNASeq_binning.py'])
 print(RNASeqOutput)
 rnaseq_process = BED_Preprocess.BED_Preprocessing(h5s_file=RNASeq_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file, data_type='RNASeq')
     rnaseq_process.process()
