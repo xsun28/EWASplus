@@ -23,7 +23,7 @@ checkMethods () {
 
 
 
-
+PYTHONPATH=$(pwd)
 
 echo "Start to get all WGBS sites and transform from hg38 to hg19..."
 

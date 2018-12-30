@@ -1,5 +1,5 @@
 #!/bin/bash
-        
+PYTHONPATH=$(pwd)        
 traits=(braak)
 sed -i "s/dataset = .*/dataset = 'AD_CpG'/" common/commons.py
 #echo "Preprocess features for all 450K WGBS sites"
