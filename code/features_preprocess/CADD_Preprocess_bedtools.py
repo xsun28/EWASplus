@@ -9,6 +9,10 @@ Created on Wed Feb 21 22:27:39 2018
 import pandas as pd
 import numpy as np
 import sys
+import os
+home = os.getcwd()[:os.getcwd().find('EnsembleCpG')]+'EnsembleCpG/'
+os.environ["PYTHONPATH"] = home+"code/"
+sys.path[1] = os.environ["PYTHONPATH"]
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage

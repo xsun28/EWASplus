@@ -25,7 +25,8 @@ logger = Logger.Logger(log_dir).get_logger()
 beta_file = home+'data/AD_CpG/ROSMAP_arrayMethylation_imputed.tsv'
 pos_file = home+'data/AD_CpG/ROSMAP_arrayMethylation_metaData.tsv'
 all_sites_betas = cal_beta(beta_file,pos_file)
-pos_pvalues = {'amyloid':0.001,'cerad':0.0001,'ceradaf':0.0005,'tangles':0.00001,'cogdec':0.002,'gpath':0.0002,'braak':0.0002}### 0.001 for amyloid, 0.0001 for cerad, 0.00001 for tangles,0.002 for cogdec, 0.0002 for gpath,0.0002 for braak
+pos_pvalues ={'amyloid':0.00005,'cerad':0.00001,'ceradaf':0.00005,'tangles':0.0000005,'cogdec':0.00003,'gpath':0.00001,'braak':0.00005}
+### 0.001 for amyloid, 0.0001 for cerad, 0.00001 for tangles,0.002 for cogdec, 0.0002 for gpath,0.0002 for braak
 pos_pvalue = pos_pvalues[type_name] 
 neg_pvalue = 0.4
 sample_ratio_neg_to_pos = 10

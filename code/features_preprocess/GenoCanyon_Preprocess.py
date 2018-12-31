@@ -10,6 +10,7 @@ Run the GenoCanyon_Preprocess.R script first to get the scores on desired locati
 
 import pandas as pd
 import sys
+import os
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage

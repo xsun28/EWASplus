@@ -8,6 +8,7 @@ Created on Mon Jun 18 15:03:52 2018
 
 import pandas as pd
 import numpy as np
+import os
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage

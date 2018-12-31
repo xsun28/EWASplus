@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import numpy as np
 import sys
+import os
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
@@ -12,7 +13,7 @@ from features_preprocess import BED_binning
 from features_preprocess import BED_Preprocess, CADD_Preprocess,DANN_Preprocess,Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
 import subprocess
 from features_preprocess import get_winid
-from common.commons import rename_features
+from common.commons import rename_features,check_genocaynon
 import os
 import re
 import gc
@@ -87,7 +88,7 @@ eigen_preprocess.process()
 
 genocanyon_scores = extra_storage+'GenoCanyon/Results/'+dataset+'/selected_site_scores.txt'
 data_dir=extra_storage+'GenoCanyon/Results/'+dataset+'/'
-if os.path.exists(genocanyon_scores):
+if os.path.exists(genocanyon_scores) and check_genocaynon(genocanyon_scores,sites_file):
     genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
     genocanyon_preprocess.process('selected_site_scores.txt')
 else:

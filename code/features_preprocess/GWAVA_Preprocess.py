@@ -1,12 +1,12 @@
 import pandas as pd 
 import numpy
+import os,sys
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
 #from features_preprocess import get_winid
 import pysam
 import pybedtools
-import sys, os
 
 class GWAVA_Preprocess(object):
 	def __init__(self, data_dir = os.path.join(extra_storage, 'GWAVA'),

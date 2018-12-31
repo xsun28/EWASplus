@@ -10,9 +10,9 @@ import sys
 import os
 #home = '/home/ec2-user/git/EnsembleCpG/'
 home = os.getcwd()[:os.getcwd().find('EnsembleCpG')]+'EnsembleCpG/'
-extra_storage = home+'data/raw/'
 os.environ["PYTHONPATH"] = home+"code/"
 sys.path[1] = os.environ["PYTHONPATH"]
+extra_storage = home+'data/raw/'
 #extra_storage = '/home/ec2-user/extra_storage/CpG_EWAS/'
 dataset = 'AD_CpG'
 #import argparse
@@ -23,7 +23,7 @@ dataset = 'AD_CpG'
 #type_name = 'braak'
 #with_cell_type = args.with ## with or without
 if dataset == 'AD_CpG':
-    type_name = 'cerad'
+    type_name = 'braak'
     with_cell_type = 'with' ##with without
 import pandas as pd
 import numpy as np
@@ -64,8 +64,8 @@ def find_nearest_450ksites(window,sites,wgbs):
     return nearby_all_sites.set_index(['wgbs_chr','wgbs_coordinate'])  
 #-----------------------------------------------------------------------------
 def train_test_split(data,test_size=0.1,scaler='standard'):
-    total_dataset = 'AD_CpG'
-    total_dataset = 'AD_CpG'
+    total_dataset = data.copy()
+    total_dataset = total_dataset.reset_index().drop('index',axis=1)   #reset index or split below will generate filtered index and NAN values
     split = StratifiedShuffleSplit(n_splits=1,test_size=test_size,random_state=17)
     for train_index, test_index in split.split(total_dataset,total_dataset['label']):
         train_set = total_dataset.ix[train_index]
@@ -176,3 +176,10 @@ def rename_features(x):   #rename repetitive features
             features_count[name] += 1
     x.columns = features
     return 
+
+
+#----------------------------------------------------------
+def check_genocaynon(genocanyon_scores,sites_file):
+    sites_len = len(pd.read_csv(sites_file))
+    scores_len = len(pd.read_csv(genocanyon_scores,header=None))
+    return sites_len == scores_len

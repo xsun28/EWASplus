@@ -14,7 +14,7 @@ from features_preprocess import get_winid
 import numpy as np
 import re
 from features_preprocess import WGBS_preprocess
-from common.commons import rename_features
+from common.commons import rename_features, check_genocaynon
 import gc
 import argparse
 
@@ -217,7 +217,7 @@ for i in np.arange(len(ranges)-1):
     else:      
         genocanyon_scores = extra_storage+'GenoCanyon/Results/'+dataset+'/selected_site_scores.txt'
         data_dir=extra_storage+'GenoCanyon/Results/'+dataset+'/'
-        if os.path.exists(genocanyon_scores):
+        if os.path.exists(genocanyon_scores) and check_genocaynon(genocanyon_scores,sites_file):
             genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
             genocanyon_preprocess.process('selected_site_scores.txt')
         else:
