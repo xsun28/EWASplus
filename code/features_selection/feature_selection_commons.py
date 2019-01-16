@@ -102,7 +102,7 @@ def selected_feature_analysis(features,X,y):
 #--------------------------------------------------------------------
 def method_params(methods=['random_forest','xgboost','logistic_regression','linear_SVC']):
     params={}
-    feature_num = train_x.shape[1]
+    #feature_num = train_x.shape[1]
     #class_weight = {0:1,1:30}
     class_weight = None
     l_param={'C':9,'penalty':'l1'}

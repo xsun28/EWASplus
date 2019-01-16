@@ -21,15 +21,21 @@ class Logger(object):
              'formatters': {
                      'formatter1': {                
                              'class': 'logging.Formatter',
-                             'format': '%(asctime)s %(message)s'
+                             'format': '%(levelname)-8s; %(asctime)s; %(name)-15s; %(module)s:%(funcName)s;%(lineno)d: %(message)s'
                                  }
                      },
                      
              'handlers': {
                      'file': {
+                             'level':'DEBUG',
                              'class':'logging.FileHandler',
                              'filename': log_file,
                              'formatter':'formatter1',                            
+                             },
+                     'console':{
+                             'level':'INFO',
+                             'class':'logging.StreamHandler',
+                             'formatter':'formatter1'
                              }
                      },
                      
@@ -37,7 +43,7 @@ class Logger(object):
                     },
         'root': {
             'level': 'DEBUG',
-            'handlers': [ 'file']
+            'handlers': [ 'file','console']
         },
         }
             with open(log_conf,'w') as conf:

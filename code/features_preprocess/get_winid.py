@@ -8,6 +8,7 @@ Created on Wed Feb 21 13:24:47 2018
 
 import pandas as pd
 import numpy as np
+from common.commons import logger
 ###################################
 def convert_chr_to_num(data,chrs=None):
     def f(x):
@@ -16,7 +17,7 @@ def convert_chr_to_num(data,chrs=None):
     if data['chr'].dtype != np.dtype('int64'):
         if chrs is not None:
             chr_str = [str(chrm) for chrm in chrs]
-            print(chr_str)
+            #print(chr_str)
         data = data[data['chr'].apply(lambda x: x.startswith('chr') and x[3:] in chr_str)]
         data['chr'] = data['chr'].apply(lambda x: int(x[3:]))
         #i = data.columns.get_loc('chr')
@@ -35,7 +36,7 @@ def read_wins(win_path,chrs=None):
 
 #----------------------------------
 def get_winid(feature_wins,dataset,sorted=False,start_index=1):
-
+    logger.info('getting windows id for sites in the dataset with start index {}'.format(start_index))
 #    chrs = dataset['chr'].unique()
     if not sorted:
         dataset.sort_values(['chr','coordinate'],inplace=True)

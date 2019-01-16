@@ -11,6 +11,7 @@ import sys
 import os
 from common import commons
 home = commons.home
+logger = commons.logger
 extra_storage = commons.extra_storage
 from features_preprocess import get_winid
 import pysam
@@ -22,6 +23,8 @@ class Eigen_Preprocess(object):
         self.data_dir = data_dir
         self.sites_file = sites_file
         self.additional_feature_file = additional_feature_file 
+        logger.info('Process Eigen features for sites in file {}, to be output to {}'.format(sites_file,additional_feature_file))
+
     
     def process(self):
         all_sites = pd.read_csv(self.sites_file)
@@ -44,6 +47,7 @@ class Eigen_Preprocess(object):
             left = pos
             right = pos-1
             eigen_file = self.data_dir+'Eigen_hg19_noncoding_annot_chr'+chrm+'.tab.bgz'
+            logger.info('Eigen raw file for chromsome {} is {}'.format(chrm,eigen_file))
             tabix = pysam.Tabixfile(eigen_file)
             while len(phred_one_site) == 0:
                 left = left-1
@@ -66,10 +70,13 @@ class Eigen_Preprocess(object):
             i += 1
             if i%1000 == 0:
                 #print([chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred])
-                print([chrm,pos,max_phred,average_phred,max_pc_phred,average_pc_phred])        
+                logger.info('Processed {} sites...'.format(i))
+                #print([chrm,pos,max_phred,average_phred,max_pc_phred,average_pc_phred]) 
+                
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             #h5s['Eigen'] = pd.DataFrame(eigen_scores,columns=['chr','coordinate','eigen_max_raw','eigen_avg_raw','eigen_max_phred','egien_avg_phred','eigen_max_pc_raw','eigen_avg_pc_raw','eigen_max_pc_phred','egien_avg_pc_phred'])
             h5s['Eigen'] = pd.DataFrame(eigen_scores,columns=['chr','coordinate','eigen_max_phred','egien_avg_phred','eigen_max_pc_phred','egien_avg_pc_phred'])
+            logger.info('Eigen features of sites in {} are outputted to {}'.format(self.sites_file,self.additional_feature_file))
 
 
 

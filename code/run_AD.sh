@@ -9,6 +9,7 @@ for trait in ${traits[@]}; do
         sed -i "s/type_name = .*/type_name = '$trait'/" common/commons.py
         echo "Start ${trait} training sites selection"
         python sites_selection/AD_sites_selection.py
-        echo "Preprocess features for selected ${trait} training sites"
+        exit
+	echo "Preprocess features for selected ${trait} training sites"
         python features_preprocess/all_features_preprocess.py
 done

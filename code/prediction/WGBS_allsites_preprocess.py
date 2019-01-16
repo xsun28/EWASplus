@@ -8,6 +8,7 @@ from features_preprocess import get_winid
 import numpy as np
 import re
 from pyliftover import LiftOver
+logger = commons.logger
 
 def read_WGBS(file):
     bed = pd.read_csv(file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')
@@ -40,7 +41,7 @@ def hg38tohg19(row):
     
     
     
-
+logger.info('starting preprocess all WGBS sites from hg38 to hg19, and obtain window for each WGBS site for merging 1806 features later...')
 dataset = 'WGBS'
 win_path= home+'data/commons/wins.txt'
 chrs=np.arange(1,22,dtype='int64')
@@ -67,9 +68,11 @@ hg19_wgbs_file = home+'data/'+dataset+'/hg19_WGBS.csv'
 #coord_hg19.dropna().drop_duplicates(['chr','coordinate']).to_csv(hg19_wgbs_file,index=False)
 
 #using WGBS(hg19) sites only run once
+logger.info('reading hg19/hg38 wgbs files from '+hg19_wgbs_file)
 hg19_wgbs = pd.read_csv(hg19_wgbs_file,usecols=[0,1,3,4]).sort_values(['hg38chr','hg38coordinate']).reset_index(drop=True)
 #hg19_wgbs = get_winid.convert_chr_to_num(hg19_wgbs,chrs)
-print('Obtaining winid of all hg19 wgbs sites...')
+logger.info('Obtaining winid of all hg19 wgbs sites...')
 all_sites = get_winid.get_winid(wins,hg19_wgbs,True).dropna()
 all_sites['winid'] = all_sites['winid'].astype('i8')
+logger.info('Saving all WGBS sites with window id to '+all_wgbs_sites_file)
 all_sites.to_csv(all_wgbs_sites_file,index=False)

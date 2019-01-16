@@ -11,6 +11,7 @@ import numpy as np
 import os
 from common import commons
 home = commons.home
+logger = commons.logger
 extra_storage = commons.extra_storage
 import os
 import re
@@ -29,14 +30,14 @@ class WGBS_Preprocess():
         pattern = '.*\.bed$'
         reg = re.compile(pattern)
         files = [f for f in files if len(reg.findall(f))>0]
-            
+        logger.info('WGBS files with converted coordinate are saved at: '+self.h5s_file)    
         with pd.HDFStore(self.h5s_file,'w') as h5s:
             for file in files:
-                print("start processing "+file)
+                logger.info("start converting coordinate of WGBS: "+file)
                 self.readcount_WGBS(h5s,file)        
         
              
-    def readcount_WGBS(self,h5s,file):
+    def readcount_WGBS(self,h5s,file):   ####convert each hg38 WGBS file to hg19 coordinate
 
         bed = pd.read_csv(self.data_dir+file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')       
         bed.dropna(inplace=True)
@@ -51,7 +52,7 @@ class WGBS_Preprocess():
         bed = bed.groupby(['chr','coordinate']).aggregate({'count':sum}).reset_index()
         bed.rename(columns={'count':file[:-4]+'_WGBS_counts'},inplace=True)
         h5s[file[:-4]] = bed
-        print(file+' is done')
+        logger.info("WGBS: "+file+' is coordinate converted')
         #    bed_counts = bed.groupby(['chr','coordinate']).aggregate({'count':sum})
 
 
@@ -63,7 +64,7 @@ class WGBS_Preprocess():
                 bed_counts = h5s[key].dropna()
                 counts_at_targets = pd.merge(counts_at_targets,bed_counts,on=['chr','coordinate'],how='left')
                 counts_at_targets[key[1:]+'_WGBS_counts'].fillna(0,inplace=True)
-                print(key+' is done')
+                logger.info('merging WGBS '+key+' file with selected sites is done')
         
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             h5s['WGBS'] = counts_at_targets               

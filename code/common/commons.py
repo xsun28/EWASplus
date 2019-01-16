@@ -32,6 +32,14 @@ from common import DataScaler as ds
 import math
 from sklearn.model_selection import StratifiedKFold
 from sklearn.base import clone
+from log import Logger
+log_dir = home+'logs/'
+if os.path.exists(log_dir+'logging.conf'):
+    logger = Logger.Logger(log_dir,new=False).get_logger()
+    logger.info('Existing logger at commons')
+else:
+    logger = Logger.Logger(log_dir).get_logger()
+    logger.info('Initiating logger at commons')
 ###########################################
 def sample_weights(X,y,class_weights=None,factor=0.5):
     weights = pd.Series(np.ones(X.shape[0]),index=y.index)
@@ -64,8 +72,8 @@ def find_nearest_450ksites(window,sites,wgbs):
     return nearby_all_sites.set_index(['wgbs_chr','wgbs_coordinate'])  
 #-----------------------------------------------------------------------------
 def train_test_split(data,test_size=0.1,scaler='standard'):
-    total_dataset = data.copy()
-    total_dataset = total_dataset.reset_index().drop('index',axis=1)   #reset index or split below will generate filtered index and NAN values
+    total_dataset = 'AD_CpG'
+    total_dataset = 'AD_CpG'
     split = StratifiedShuffleSplit(n_splits=1,test_size=test_size,random_state=17)
     for train_index, test_index in split.split(total_dataset,total_dataset['label']):
         train_set = total_dataset.ix[train_index]
@@ -159,8 +167,11 @@ def upSampling(X,fold):
 
 #--------------------------------------------------------------------------------
 def swapCols(df,a,b):
-    df[a],df[b] = df[b],df[a]
-    return df
+    l = df.columns.values.tolist()
+    ix1 = l.index(a)
+    ix2 = l.index(b)
+    l[ix1],l[ix2] = l[ix2],l[ix1]
+    return df[l]
 
 
 #---------------------------------------------------------------------------------
@@ -182,4 +193,10 @@ def rename_features(x):   #rename repetitive features
 def check_genocaynon(genocanyon_scores,sites_file):
     sites_len = len(pd.read_csv(sites_file))
     scores_len = len(pd.read_csv(genocanyon_scores,header=None))
-    return sites_len == scores_len
+    check_result = sites_len == scores_len
+    if not (sites_len == scores_len):
+        logger.info('Genocanyon error: sites file length does not equal to scores file length, score files may need to be reprocessed')
+        return False
+    else:
+        return True
+  

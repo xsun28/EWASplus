@@ -4,13 +4,16 @@ import numpy as np
 import sys
 from common import commons
 home_path = commons.home
-from log import Logger
+logger = commons.logger
+from heapq import nsmallest
 
-log_dir = home_path+'logs/'
-logger = Logger.Logger(log_dir,True).get_logger()
+
 pos_pvalue = 0.0003
+logger.info('positive training sites pvalue threshold is <= {}'.format(pos_pvalue))
 neg_pvalue = 0.1
+logger.info('negative training sites pvalue threshold is >= {}'.format(neg_pvalue))
 sample_ratio_neg_to_pos = 10
+logger.info('ratio of negative training samples to positive samples are '.format(sample_ratio_neg_to_pos))
 
 
 all_sites = pd.read_excel(home_path+'data/Cd/allsites.xlsx','Excel Table S4',skiprows=4,header=None, names=['id','chr','coordinate','beta_sign','pvalue'],usecols=[0,1,2,5,6])
@@ -33,8 +36,7 @@ hyper_sites = negatives_sort_by_beta.query('beta_sign>=0')
 hypo_sites = negatives_sort_by_beta.query('beta_sign<0')
 for beta,beta_sign in positive_sites[['beta','beta_sign']].values:
     tmp_sites = hyper_sites if beta_sign >=0 else hypo_sites
-    neg_ix = tmp_sites['beta'].searchsorted(beta)[0]    
-    negs = tmp_sites.iloc[neg_ix-int(sample_ratio_neg_to_pos/2):np.minimum(neg_ix+int(sample_ratio_neg_to_pos/2),len(negatives_sort_by_beta)),:]
+    negs = tmp_sites.loc[nsmallest(10, tmp_sites.index.values, key=lambda i: abs(tmp_sites.loc[i,'beta']-beta)),:]
     select_negs_list.extend(negs.values)
 select_negs = pd.DataFrame(select_negs_list,columns=['id','chr','coordinate','beta_sign','pvalue','beta','label'])
 

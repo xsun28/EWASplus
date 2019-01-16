@@ -14,7 +14,7 @@ from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
 from features_preprocess import get_winid
-
+logger = commons.logger
 ############################################################
 class BED_binning(object):
     
@@ -24,6 +24,7 @@ class BED_binning(object):
         self.win_path = win_path
         self.chrs = chrs
         self.data_type = data_type
+        logger.info('Bed binning of {} files, and are going to be output to {}'.format(data_type,output))
         self.sorted = sorted
     
     
@@ -38,7 +39,7 @@ class BED_binning(object):
 #        return bed
 
     def cal_counts(self,h5s,file,wins):
-        print('start process '+file)
+        logger.info('start binning {}-{}'.format(self.data_type,file))
         if self.data_type == 'WGBS':
             bed = self.read_WGBS((self.data_dir+file))
         else:
@@ -53,14 +54,14 @@ class BED_binning(object):
             bed = bed.drop(['chr_y','coordinate_y','oldChr','oldCoordinate'],axis=1).rename(columns={'chr_x':'chr','coordinate_x':'coordinate'}).sort_values(['chr','coordinate']).reset_index(drop=True)
             bed_counts = bed.groupby(['winid']).aggregate({'count':np.mean}).reset_index()
         else:
+            logger.info('Getting window reads proportional to overlapping length on windows')
             bed = get_winid.get_window_reads(wins,bed,start_index=0).dropna()#.sort_values(['winid'])
             bed_counts = bed.groupby(['winid']).aggregate({'count':sum}).reset_index()
-            print(bed)
             del bed
             gc.collect()
         bed_counts.rename(columns={'count':file[:-4]+'_'+self.data_type+'_counts'},inplace=True)
         h5s[file[:-4]] = bed_counts 
-        print(file+' is done')
+        logger.info('binning {} is done'.format(file))
     
     def binning(self,single_file=None):
         if self.data_type == 'WGBS':
@@ -74,10 +75,12 @@ class BED_binning(object):
             files = [f for f in files if len(reg.findall(f))>0]
             
             with pd.HDFStore(self.output,'w') as h5s:
-                for file in files:
+                for file in files: 
+                    logger.info('output binned {} {} results to {}'.format(self.data_type,file,self.output))
                     self.cal_counts(h5s,file,wins)
         else:
              with pd.HDFStore(self.output+single_file,'w') as h5s:
+                logger.info('output binned {} {} file to {}'.format(self.data_type,single_file+'.bed',self.output+single_file))
                 self.cal_counts(h5s,single_file+'.bed',wins)
 
                 

@@ -25,6 +25,9 @@ from models import deep_network_estimator as dne
 from sklearn.exceptions import NotFittedError
 import math
 from sklearn.calibration import CalibratedClassifierCV
+from common import commons
+logger = commons.logger
+
 class Ensemble(BaseEstimator):
 
     #static fields

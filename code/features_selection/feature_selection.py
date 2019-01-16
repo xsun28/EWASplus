@@ -35,19 +35,19 @@ if dataset == 'Cd':
     type_weight_factor = 0.4
 else:
     if type_name == 'cerad':
-        type_weight_factor = 0.23
-    elif type_name == 'ceradaf':
-        type_weight_factor = 0.25
+        type_weight_factor = 0.28
     elif type_name == 'amyloid':
-        type_weight_factor = 0.3
+        type_weight_factor = 0.25
     elif type_name == 'cogdec':
-        type_weight_factor = 0.4
+        type_weight_factor = 0.27
     elif type_name == 'gpath':
-        type_weight_factor = 0.3
+        type_weight_factor = 0.25
     elif type_name == 'braak':
-        type_weight_factor = 0.3
+        type_weight_factor = 0.27
     elif type_name == 'tangles':
-        type_weight_factor = 0.3
+        type_weight_factor = 0.25
+    elif type_name == 'ceradaf':
+        type_weight_factor = 0.29
     else:
         type_weight_factor = 0.3
     
@@ -102,3 +102,10 @@ joblib.dump(scaler,home+'data/'+dataset+'/scaler.pkl')
 print('Data scaler type is: %s'%scaler_type)
 
 selected_features_100.to_csv(home+'data/'+dataset+'/feature_stats.csv')
+with pd.HDFStore(home+'data/'+dataset+'/selected_features','w') as h5s:
+    h5s['train_x'] = reduced_train_x
+    h5s['train_label'] = train_label
+    h5s['test_x'] = reduced_test_x
+    h5s['test_label'] = test_label
+    h5s['sample_weights_train'] = sample_weights_train
+    h5s['sample_weights_test'] = sample_weights_test

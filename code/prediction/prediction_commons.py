@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
 
 tss_start = 0
 tss_end = 14274574

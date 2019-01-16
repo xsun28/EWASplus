@@ -2,13 +2,12 @@
 #install.packages("bigmemory",repos='http://cran.us.r-project.org')
 library(bigmemory)
 library('methods')
-source("Script_Appendix.R")
 args = commandArgs(trailingOnly=TRUE)
 is450k <- as.logical(args[1])
 home <- paste(args[2],'/',sep='')
 extra_storage <- args[3]
 dataset <- args[4]
-
+source(paste(home,"code/features_preprocess/","Script_Appendix.R",sep=''))
 #is450k <- FALSE
 #home <- "/home/ec2-user/volume/git/EnsembleCpG/"
 #extra_storage <- "/home/ec2-user/volume/git/EnsembleCpG/data/raw/"

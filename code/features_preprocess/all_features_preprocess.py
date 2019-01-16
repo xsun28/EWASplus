@@ -7,6 +7,7 @@ import sys
 import os
 from common import commons
 home = commons.home
+logger = commons.logger
 extra_storage = commons.extra_storage
 dataset = commons.dataset
 from features_preprocess import BED_binning
@@ -51,6 +52,10 @@ if dataset == 'AD_CpG':
 sites_file = home+'data/'+dataset+'/all_sites_winid.csv'
 additional_feature_file = home+'data/features/'+dataset+'/addtional_features'
 
+logger.info('Concatening features to all training sites of {}'.format(dataset))
+logger.info('Read all training sites file of {} with window id at {}'.format(dataset,sites_file))
+logger.info("Additional features (WGBS,ATAC,etc) are saved at {}".format(additional_feature_file))
+
 subprocess.call([home+'code/features_preprocess/Feature_export.R',home+'data',dataset,'False'])
 
 #single sites WGBS
@@ -61,14 +66,11 @@ if not os.path.exists(WGBS_h5s):
 WGBS_proc.scores()
 
 ATAC_h5s = home+'data/commons/ATAC_H5S'
-if os.path.exists(ATAC_h5s):
-    atac_process = BED_Preprocess.BED_Preprocessing(h5s_file=ATAC_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file,data_type='ATAC')
-    atac_process.process()
-else:
+if not os.path.exists(ATAC_h5s):
     atac_binning = BED_binning.BED_binning(data_type='ATAC',data_dir=extra_storage+'ATAC/',output=ATAC_h5s,sorted=True)
     atac_binning.binning()
-    atac_process = BED_Preprocess.BED_Preprocessing(h5s_file=ATAC_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file,data_type='ATAC')
-    atac_process.process() 
+atac_process = BED_Preprocess.BED_Preprocessing(h5s_file=ATAC_h5s,sites_file=sites_file,additional_feature_file=additional_feature_file,data_type='ATAC')
+atac_process.process() 
     
 RNASeq_h5s = home+'data/RNASeq/'
 print('binning RNASeq...')
@@ -88,14 +90,11 @@ eigen_preprocess.process()
 
 genocanyon_scores = extra_storage+'GenoCanyon/Results/'+dataset+'/selected_site_scores.txt'
 data_dir=extra_storage+'GenoCanyon/Results/'+dataset+'/'
-if os.path.exists(genocanyon_scores) and check_genocaynon(genocanyon_scores,sites_file):
-    genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
-    genocanyon_preprocess.process('selected_site_scores.txt')
-else:
+if not (os.path.exists(genocanyon_scores) and check_genocaynon(genocanyon_scores,sites_file)):
     print('Running GenoCanyon R script...')
     subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
-    genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
-    genocanyon_preprocess.process('selected_site_scores.txt')
+genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
+genocanyon_preprocess.process('selected_site_scores.txt')
 
 gwava_preprocess = GWAVA_Preprocess.GWAVA_Preprocess(sites_file=sites_file,additional_feature_file=additional_feature_file)
 gwava_preprocess.process()    

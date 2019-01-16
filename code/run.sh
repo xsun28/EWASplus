@@ -24,13 +24,13 @@ checkMethods () {
 
 
 PYTHONPATH=$(pwd)
-
+rm ../logs/logging.conf
 echo "Start to get all WGBS sites and transform from hg38 to hg19..."
 
 WGBSSitesFile=../data/WGBS/all_wgbs_sites_winid.csv
 if [[ !(-e "$WGBSSitesFile") ]]; then
 	echo "Good"
-	#python features_preprocess/WGBS_allsites_preprocess.py	
+	#python prediction/WGBS_allsites_preprocess.py	
 fi
 
 echo "Got all WGBS hg19 sites"
@@ -64,8 +64,9 @@ if [[ "$dataset" == "AD" ]]; then
 	sed -i "s/dataset = .*/dataset = 'AD_CpG'/" common/commons.py
 	read -p "Preprocess features for AD 450k sites? (Y/N)" arrayFeatures
 	if [[ "${arrayFeatures}" == "Y" ]]; then
+		read -p "Reset 450k features process progress tracker? (True/False)" reset450KTracker
 		echo "Preprocess features for all 450K WGBS sites"
-		#python features_preprocess/all450k_feature_preprocess.py
+		#python features_preprocess/all450k_feature_preprocess.py -r $reset450KTracker
 	fi
 	for trait in ${traits[@]}; do
 		read -p "Processing ${trait}? (Y/N)" processTrait
@@ -100,6 +101,7 @@ if [[ "$dataset" == "AD" ]]; then
 		fi
 		
 		read -p "WGBS sites and 450K sites methylation prediction for ${trait}? (Y/N)" traitPrediction
+		if [[ "$traitPrediction" == "Y" ]]; then
 			echo "Predict WGBS methylation for $trait"
 			read -p "Retrain prediction model? (Y/N)" retrain
 			if [[ "$retrain" == "Y" ]]; then
@@ -118,6 +120,7 @@ if [[ "$dataset" == "AD" ]]; then
 				fi
 			done	
 			#python prediction/WGBS_prediction.py -r $retrain -u True -m $models
+		fi
 	done
 	read -p "Combine results for all AD traits? (Y/N)" combine
 	if [[ "$combine" == Y ]]; then

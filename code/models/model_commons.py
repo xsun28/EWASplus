@@ -3,31 +3,42 @@ import sys
 import os
 from common import commons
 home = commons.home
+logger = commons.logger
 #sys.path.append('/home/ec2-user/anaconda3/lib/python3.6/site-packages')
 import pandas as pd
 import numpy as np
+from datetime import datetime
 from models import xgbooster
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC,LinearSVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix,recall_score,precision_score,accuracy_score,f1_score,roc_curve,roc_auc_score,precision_recall_curve
-import matplotlib.pyplot as plt
 from sklearn import clone
 from sklearn.externals import joblib
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import StratifiedKFold
 from importlib import reload
-from log import Logger
 from models import deep_network_estimator as dne
 from models import Ensemble_hyperopt as eh
+from models import Ensemble as es
 from hyperopt import fmin,tpe,hp, STATUS_OK,Trials
 from hyperopt_models import parallel_ensemble as pe
 from functools import reduce
 import itertools
-
+# for aws script
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+dataset = commons.dataset
+if dataset == 'AD_CpG':
+    type_name = commons.type_name  ## amyloid, cerad, tangles
+    with_cell_type = commons.with_cell_type ## with or without
 
 def plot_curves_cv(probs,label,methods,types='roc_curve'):
+    dt = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    fig_file_name = dataset+'_'+type_name+with_cell_type+'_10foldCV_allSitesPredProbs_'+types+'_'+dt
+    fig_path = os.path.join(home, 'figs', fig_file_name)
     plt.figure(figsize=(7,5))
     plt.title(types)
     plt.axis([0,1,0,1])
@@ -47,7 +58,7 @@ def plot_curves_cv(probs,label,methods,types='roc_curve'):
             plt.ylabel('Recall')
             plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
     plt.legend(loc='best')
-
+    plt.savefig(fig_path)
 
 #----------------------------------------------------------------------------
 def get_estimators(methods,params,train_x,train_label):
@@ -226,8 +237,8 @@ def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,u
         best_params_cv.extend([best_params.copy()])
         all_estimators = list(ensemble.best_estimators_.values())
         all_estimators.extend([ensemble])
-        plot_curves(all_estimators,test_fold,test_label,types='roc_curve')
-        plot_curves(all_estimators,test_fold,test_label,types='precision_recall_curve')
+        #plot_curves(all_estimators,test_fold,test_label,types='roc_curve')
+        #plot_curves(all_estimators,test_fold,test_label,types='precision_recall_curve')
         del ensemble
     if class_num == 2:
         result_df = pd.DataFrame(results,columns=['logloss','f1','recall','precision','auc_score'])

@@ -12,6 +12,7 @@ import os
 from common import commons
 home = commons.home
 extra_storage = commons.extra_storage
+logger = commons.logger
 from features_preprocess import get_winid
 import pysam
 from sklearn.base import BaseEstimator,TransformerMixin
@@ -25,13 +26,14 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
         self.data_dir = data_dir
         self.sites_file = sites_file
         self.additional_feature_file = additional_feature_file
+        logger.info('Process CADD features for sites in file {}, to be output to {}'.format(sites_file,additional_feature_file))
         
     def process(self):
         all_sites = pd.read_csv(self.sites_file)
         all_sites = get_winid.convert_chr_to_num(all_sites)
         CADD_scores = []
-        print(extra_storage)
         CADD_file = self.data_dir+'whole_genome_SNVs.tsv.gz'
+        logger.info('CADD raw file is {}'.format(CADD_file))
         tabix = pysam.Tabixfile(CADD_file)
         i = 0
         for site in all_sites.values:
@@ -57,12 +59,12 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
             i+=1
             if i%1000 == 0:
                 #print([chrm,pos,max_raw,average_raw,max_phred,average_phred])
-                print([chrm,pos,max_phred,average_phred])
+                logger.info('Processed {} sites...'.format(i))
         
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             #h5s['CADD'] = pd.DataFrame(CADD_scores,columns=['chr','coordinate','CADD_max_raw','CADD_avg_raw','CADD_max_phred','CADD_avg_phred']).drop(['CADD_max_raw','CADD_avg_raw'],axis=1)        
             h5s['CADD'] = pd.DataFrame(CADD_scores,columns=['chr','coordinate','CADD_max_phred','CADD_avg_phred'])
-        
+            logger.info('CADD features of sites in {} are outputted to {}'.format(self.sites_file,self.additional_feature_file))
                 
     
 #

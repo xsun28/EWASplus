@@ -2,6 +2,7 @@
 import sys
 from common import commons
 home = commons.home
+logger = commons.logger
 import pandas as pd
 import numpy as np
 from sklearn import clone
@@ -14,7 +15,7 @@ import gc
 import argparse
 #############################################Get top 500 sites predicted commonly by all traits
 parser = argparse.ArgumentParser(description='WGBS top 500 and 450 k sites methylation prediction commonly by all traits')
-parser.add_argument('-m',required=False,default=['LogisticRegression','xgbooster'],help='prediction methods',dest='methods',metavar='LogisticRegression xgbooster')
+parser.add_argument('-m',required=False,default=['LogisticRegression','xgbooster'],help='prediction methods',dest='methods',metavar='LogisticRegression xgbooster',nargs='+')
 args = parser.parse_args()
 methods = '-'.join(args.methods)
 
@@ -113,6 +114,9 @@ for pred_prob,trait in zip(pred_probs,traits):
     all_probs_450k.rename({'positive':'positive_'+trait,'negative':'negative_'+trait},axis=1,inplace=True)
     
 all_probs_450k = all_probs_450k.ix[:,~all_probs_450k.columns.duplicated()]
+all_450k_features = home+'data/AD_CpG/all_450k_features'
+with pd.HDFStore(all_450k_features,'r') as h5s:
+    all_450k_data = h5s['all_450k_features']
 all_probs_450k = pd.merge(all_probs_450k,all_450k_data[['id','chr','coordinate']],on=['chr','coordinate'],how='left')
 
 trait_pvalues = [home+'data/'+dataset+'/all_450k_sites_winid.csv' for dataset in ['AD_CpG/amyloidwith','AD_CpG/ceradwith','AD_CpG/tangleswith','AD_CpG/gpathwith','AD_CpG/braakwith','AD_CpG/cogdecwith']]
