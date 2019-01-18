@@ -266,6 +266,7 @@ class Ensemble(BaseEstimator):
             self.model_preds[method] = pred
             if y is not None:
                 self.model_scores[method] = self.model_score(y, prob)
+                logger.info('score for {} is {}'.format(method,self.model_scores[method]))
 
             probs = np.add(probs, prob)
         labels = np.argmax(probs, axis=1)
@@ -320,7 +321,7 @@ class Ensemble(BaseEstimator):
 
     def model_predicts(self):
         if len(self.model_preds) == 0:
-            logger.info('No model prodicts')
+            logger.warn('No model prodicts')
             return None
         return self.model_preds
 
@@ -342,7 +343,7 @@ class Ensemble(BaseEstimator):
 
     def get_model_scores(self):
         if len(self.model_scores) == 0:
-            print('No model scores')
+            logger.warn('No model scores')
             return None
         print(self.model_scores)
         return self.model_scores
