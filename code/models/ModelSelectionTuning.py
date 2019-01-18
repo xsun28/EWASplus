@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.externals import joblib
 from importlib import reload
 from log import Logger
-from model_commons import *
+from models.model_commons import *
 import argparse
 
 parser = argparse.ArgumentParser(description='Model Selection and Tuning for AD/Cd')

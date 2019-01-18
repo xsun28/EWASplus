@@ -10,7 +10,7 @@ from sklearn.externals import joblib
 from importlib import reload
 from log import Logger
 from models import Ensemble_hyperopt as eh 
-import get_winid
+from features_preprocess import get_winid
 import gc
 import argparse
 #############################################Get top 500 sites predicted commonly by all traits

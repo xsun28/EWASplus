@@ -11,10 +11,9 @@ logger = commons.logger
 from features_preprocess import BED_binning
 from features_preprocess import BED_Preprocess,CADD_Preprocess,DANN_Preprocess, Eigen_Preprocess,GenoCanyon_Preprocess,WGBS_preprocess,GWAVA_Preprocess
 import subprocess
-import get_winid
 import argparse
 import gc
-#from features_preprocess import get_winid  already imported three lines above
+from features_preprocess import get_winid
 from common.commons import rename_features,check_genocaynon
 import re
 from sklearn.externals import joblib

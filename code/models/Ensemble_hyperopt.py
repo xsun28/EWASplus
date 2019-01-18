@@ -345,7 +345,7 @@ class Ensemble(BaseEstimator):
         if len(self.model_scores) == 0:
             logger.warn('No model scores')
             return None
-        print(self.model_scores)
+        #logger.info("model scores are: {}".format(self.model_scores))
         return self.model_scores
 
     def best_params(self):
