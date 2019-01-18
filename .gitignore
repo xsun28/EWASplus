@@ -6,4 +6,4 @@ model/
 *.xlsx
 tensor_logs/
 tensor_model/
-.idea/
+code/.idea/
