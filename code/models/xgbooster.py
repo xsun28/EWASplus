@@ -34,7 +34,6 @@ class xgbooster(BaseEstimator):
             else:
                 weights = sample_weight
             self.xgb = xgb.XGBClassifier(**params)
-            print(self.xgb.get_params())
             self.xgb.fit(X,y,sample_weight=weights)
         else:
             self.xgb = xgb.XGBClassifier(**self.params)

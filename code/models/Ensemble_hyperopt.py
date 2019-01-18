@@ -40,7 +40,6 @@ class Ensemble(BaseEstimator):
 
     @staticmethod
     def cal_opt_score(estimator, weight_factor=None):
-        print(weight_factor)
         if weight_factor is not None:
             results = cross_validate(estimator, Ensemble.train_x, Ensemble.train_label, scoring=Ensemble.scoring, cv=3,
                                      return_train_score=False, fit_params={
@@ -49,70 +48,83 @@ class Ensemble(BaseEstimator):
             results = cross_validate(estimator, Ensemble.train_x, Ensemble.train_label, scoring=Ensemble.scoring, cv=3,
                                      return_train_score=False, n_jobs=-1)
         if 'f1_macro' in Ensemble.scoring:
+            logger.info('select mean f1_macro on test dataset across all folds as scoring')
             score = results['test_f1_macro'].mean()
         elif 'f1' in Ensemble.scoring:
+            logger.info('select mean f1 on test dataset across all folds as scoring')
             score = results['test_f1'].mean()
         if math.isnan(score) or math.isinf(score):
             score = -np.Infinity
+            logger.warn('score is negative infinity')
         return score
 
     @staticmethod
     def logistic_loss(params):
+        logger.info('Current hyperparmeters for 10-fold cross-validation of logistic regression are {}'.format(params))
         weight_factor = params.pop('weight_factor')
         l_estimator = LogisticRegression(**params)
         score = Ensemble.cal_opt_score(l_estimator, weight_factor)
+        logger.info('Current score for 10-fold cross-valdation of logistic regression is {}'.format(score))
         Ensemble.estimators['LogisticRegression'].extend([l_estimator])
         return {'loss': -score, 'status': STATUS_OK}
 
     @staticmethod
     def rf_loss(params):
+        logger.info('Current hyperparmeters for 10-fold cross-validation of random forest are {}'.format(params))
         weight_factor = params.pop('weight_factor')
-        global estimators
         rf_estimator = RandomForestClassifier(**params, n_jobs=-1)
         score = Ensemble.cal_opt_score(rf_estimator, weight_factor)
+        logger.info('Current score for 10-fold cross-valdation of random forest is {}'.format(score))
         Ensemble.estimators['RandomForestClassifier'].extend([rf_estimator])
         return {'loss': -score, 'status': STATUS_OK}
 
     @staticmethod
     def svc_loss(params):
+        logger.info('Current hyperparmeters for 10-fold cross-validation of SVC are {}'.format(params))
         weight_factor = params.pop('weight_factor')
-        global estimators
         svc_estimator = SVC(**params)
         score = Ensemble.cal_opt_score(svc_estimator, weight_factor)
+        logger.info('Current score for 10-fold cross-valdation of SVC is {}'.format(score))
         Ensemble.estimators['SVC'].extend([svc_estimator])
         return {'loss': -score, 'status': STATUS_OK}
 
     @staticmethod
     def xgb_loss(params):
+        logger.info('Current hyperparmeters for 10-fold cross-validation of xgbooster are {}'.format(params))
         weight_factor = params.pop('weight_factor')
-        global estimators
         params['n_jobs'] = -1
         xgb_estimator = xgbooster.xgbooster(**params)
         score = Ensemble.cal_opt_score(xgb_estimator, weight_factor)
+        logger.info('Current score for 10-fold cross-valdation of xgbooster is {}'.format(score))
         Ensemble.estimators['xgbooster'].extend([xgb_estimator])
         return {'loss': -score, 'status': STATUS_OK}
 
     @staticmethod
     def dnn_loss(params):
+        logger.info('Current hyperparmeters for 10-fold cross-validation of DNN are {}'.format(params))
         weight_factor = params.pop('weight_factor')
-        global estimators
         dnn_estimator = dne.tensor_DNN(**params)
         score = Ensemble.cal_opt_score(dnn_estimator, weight_factor)
+        logger.info('Current score for 10-fold cross-valdation of DNN is {}'.format(score))
         Ensemble.estimators['tensor_DNN'].extend([dnn_estimator])
         return {'loss': -score, 'status': STATUS_OK}
 
     @staticmethod
     def mlp_loss(params):
+        logger.info('Current hyperparmeters for 10-fold cross-validation of MLP are {}'.format(params))
         mlp_estimator = MLPClassifier(**params)
         score = Ensemble.cal_opt_score(mlp_estimator)
+        logger.info('Current score for 10-fold cross-valdation of MLP is {}'.format(score))
         Ensemble.estimators['MLPClassifier'].extend([mlp_estimator])
         return {'loss': -score, 'status': STATUS_OK}
 
     @staticmethod
     def lsvc_loss(params):
+        logger.info('Current hyperparmeters for 10-fold cross-validation of linear SVC are {}'.format(params))
         weight_factor = params.pop('weight_factor')
         lsvc_estimator = CalibratedClassifierCV(LinearSVC(**params, dual=False))
         score = Ensemble.cal_opt_score(lsvc_estimator, weight_factor)
+        logger.info('Current score for 10-fold cross-valdation of linear SVC is {}'.format(score))
         Ensemble.estimators['LinearSVC'].extend([lsvc_estimator])
         return {'loss': -score, 'status': STATUS_OK}
 
@@ -136,10 +148,9 @@ class Ensemble(BaseEstimator):
         for name in methods:
             if params is not None:
                 if name in params.keys():
-                    self.params[name] = params[name]
-                    logger.info('Hyperparameters for {method} are: {params}'.format(method=name, params=params[name]))
+                    self.params[name] = params[name]                    
             else:
-                logger.info('No params are provided, using default params for models...')
+                logger.info('No hyper params searching ranges are provided, using default hyper params searching ranges...')
                 l_param = {'C': hp.uniform('C', 0.05, 10), 'weight_factor': hp.uniform('weight_factor', 1, 1)}
                 rf_param = {'max_depth': 3 + hp.randint('max_depth', 30),
                             'min_samples_split': 3 + hp.randint('min_samples_split', 30),
@@ -167,17 +178,19 @@ class Ensemble(BaseEstimator):
                           'tensor_DNN': dnn_param, 'xgbooster': xgb_param, 'LogisticRegression': l_param,
                           'MPClassifier': mlp_param}
                 if name in params.keys():
-                    self.params[name] = params[name]
-                    logger.info('Hyperparameters for {method} are: {params}'.format(method=name, params=params[name]))
+                    self.params[name] = params[name]                    
         for name in params.keys():
             Ensemble.estimators[name] = []
+            logger.info('Ensemble class static model estimators mapper are cleared (avoid reusing previous trained estimators)...')
             self.trials[name] = Trials()
 
     # ------------------------------------------------------------------------------
 
     def fit(self, X, y, sample_weight=None, max_iter=50):
         self.class_num = len(y.unique())
+        logger.info('number of classes are {}'.format(self.class_num))
         self.labels = y.unique()
+        logger.info('class labels are {}'.format(self.labels))
         if Ensemble.scoring is None:
             if self.class_num <= 2:
                 Ensemble.scoring = ['precision', 'recall', 'f1', 'roc_auc', 'neg_log_loss']
@@ -193,7 +206,6 @@ class Ensemble(BaseEstimator):
             l_param = self.params['LogisticRegression']
             l_param['solver'] = hp.choice('solver', ['lbfgs'])
             l_param['multi_class'] = hp.choice('multi_class', ['multinomial'])
-            print(l_param)
         if 'tensor_DNN' in self.params.keys():
             feature_num = X.shape[1]
             dnn_param = self.params['tensor_DNN']
@@ -224,7 +236,7 @@ class Ensemble(BaseEstimator):
         for name, param in self.params.items():
             score_fn = score_fns[name]
             best = fmin(score_fn, param, algo=tpe.suggest, max_evals=max_iter, trials=self.trials[name])
-            print(best)
+            logger.info("best hyperparameters for {} are: {}".format(name,best))
             self.best_estimators_[name] = self.best_estimator(self.trials[name], Ensemble.estimators[name])
             self.best_params_[name] = self.best_estimators_[name].get_params()
             self.best_params_[name]['weight_factor'] = best['weight_factor']
@@ -245,7 +257,7 @@ class Ensemble(BaseEstimator):
                     best_estimator.fit(Ensemble.train_x, Ensemble.train_label)
                 else:
                     weight_factor = self.best_params_[method]['weight_factor']
-                    print("{},{}".format(method, weight_factor))
+                    #print("{},{}".format(method, weight_factor))
                     best_estimator.fit(Ensemble.train_x, Ensemble.train_label,
                                        np.power(Ensemble.sample_weights_train, weight_factor))
                 prob = best_estimator.predict_proba(X)
@@ -260,10 +272,12 @@ class Ensemble(BaseEstimator):
         return probs, labels
 
     def predict(self, X):
+        logger.info('Predict class labels using soft voting')
         probs, labels = self.voting(X)
         return labels
 
     def predict_proba(self, X):
+        logger.info('Predict positive class possibility using soft voting')
         probs, labels = self.voting(X)
         return probs / float(len(self.best_estimators_))
 
@@ -275,6 +289,7 @@ class Ensemble(BaseEstimator):
             f1_avg_score = f1_score(y, pred_labels, average='macro')
             recall_avg_score = recall_score(y, pred_labels, average='macro')
             precision_avg_score = precision_score(y, pred_labels, average='macro')
+            logger.info('logloss score:{}, f1_macro_avg score:{}, recall_macro_avg score:{}, precision_macro_avg score:{}'.format(logloss_score,f1_avg_score,recall_avg_score,precision_avg_score))
             return logloss_score, f1_avg_score, recall_avg_score, precision_avg_score
         else:
             f1_avg_score = f1_score(y, pred_labels)
@@ -282,6 +297,7 @@ class Ensemble(BaseEstimator):
             precision_avg_score = precision_score(y, pred_labels)
             positive_prob = pred_probs[:, 1]
             auc_score = roc_auc_score(y, positive_prob)
+            logger.info('logloss score:{}, f1_avg score:{}, recall_avg score:{}, precision_avg score:{}, auc score:{}'.format(logloss_score,f1_avg_score,recall_avg_score,precision_avg_score,auc_score))
             return logloss_score, f1_avg_score, recall_avg_score, precision_avg_score, auc_score
 
     def label_conversion(self, y):
@@ -298,13 +314,13 @@ class Ensemble(BaseEstimator):
 
     def model_probs(self):
         if len(self.model_pred_probs) == 0:
-            print('No model probs')
+            logger.warn('No model probs')
             return None
         return self.model_pred_probs
 
     def model_predicts(self):
         if len(self.model_preds) == 0:
-            print('No model probs')
+            logger.info('No model prodicts')
             return None
         return self.model_preds
 
