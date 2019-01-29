@@ -16,14 +16,30 @@ def convert_chr_to_num(data,chrs=None):
         return x
     if data['chr'].dtype != np.dtype('int64'):
         if chrs is not None:
-            chr_str = [str(chrm) for chrm in chrs]
+            chr_str = [convert_num_to_chrstr(chrm) for chrm in chrs]
             #print(chr_str)
-        data = data[data['chr'].apply(lambda x: x.startswith('chr') and x[3:] in chr_str)]
-        data['chr'] = data['chr'].apply(lambda x: int(x[3:]))
+        data = data[data['chr'].apply(lambda x: x.startswith('chr') and x[3:].upper() in chr_str)]
+        data['chr'] = data['chr'].apply(lambda x: convert_chrstr_to_num(x))
         #i = data.columns.get_loc('chr')
         #l = [f(x) for x in data.values if x[i].startswith('chr') and x[i][3:] in chr_str ]
         #return pd.DataFrame(l,columns=data.columns)
     return data.reset_index(drop=True)
+
+#-------------------------------------
+def convert_num_to_chrstr(num):
+    return str(num) if num<=22 else "X" if num==23 else "Y"
+
+#-------------------------------------
+def convert_chrstr_to_num(chrom):
+    chrom = chrom.lower()
+    if chrom.startswith('chr'):
+        chrom = chrom[3:]
+    if chrom=='x':
+        return 23
+    elif chrom=='y':
+        return 24
+    else:
+        return int(chrom)
 #-----------------------------------
 def read_wins(win_path,chrs=None):
     wincols=['chr','start','end']

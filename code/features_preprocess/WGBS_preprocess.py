@@ -17,7 +17,7 @@ import os
 import re
 from features_preprocess import get_winid
 class WGBS_Preprocess():
-    def __init__(self,h5s_file= home+'data/commons/WGBS_single_H5S',data_dir = extra_storage+'WGBS/',sites_file = home+'data/commons/all_sites_winid.csv',additional_feature_file = home+'data/features/addtional_features',hg19_file= home+'data/WGBS/hg19_WGBS.csv',chrs=np.arange(1,23,dtype='int64')):
+    def __init__(self,h5s_file= home+'data/commons/WGBS_single_H5S',data_dir = extra_storage+'WGBS/',sites_file = home+'data/commons/all_sites_winid.csv',additional_feature_file = home+'data/features/addtional_features',hg19_file= home+'data/WGBS/hg19_WGBS.csv',chrs=np.arange(1,25,dtype='int64')):
         self.h5s_file = h5s_file
         self.data_dir = data_dir
         self.sites_file = sites_file

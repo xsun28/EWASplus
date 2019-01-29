@@ -18,7 +18,7 @@ logger = commons.logger
 ############################################################
 class BED_binning(object):
     
-    def __init__(self,data_type='ATAC',data_dir=extra_storage+'ATAC/',output=home+'data/commons/ATAC_H5S',win_path=home+'data/commons/wins.txt',chrs=np.arange(1,22,dtype='int64'),sorted=False):
+    def __init__(self,data_type='ATAC',data_dir=extra_storage+'ATAC/',output=home+'data/commons/ATAC_H5S',win_path=home+'data/commons/wins.txt',chrs=np.arange(1,25,dtype='int64'),sorted=False):
         self.data_dir = data_dir
         self.output = output
         self.win_path = win_path

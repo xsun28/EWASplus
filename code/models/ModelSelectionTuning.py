@@ -4,12 +4,12 @@ import sys
 import os
 from common import commons
 home = commons.home
+logger = commons.logger
 #sys.path.append('/home/ec2-user/anaconda3/lib/python3.6/site-packages')
 import pandas as pd
 import numpy as np
 from sklearn.externals import joblib
 from importlib import reload
-from log import Logger
 from models.model_commons import *
 import argparse
 

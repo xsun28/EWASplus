@@ -9,6 +9,7 @@ import numpy as np
 import re
 from pyliftover import LiftOver
 logger = commons.logger
+from features_preprocess.get_winid import convert_num_to_chrstr
 
 def read_WGBS(file):
     bed = pd.read_csv(file,usecols=[0,1,2,5,9,10],header=None,names=['chr','pos1','pos2','strand','total','percent'],sep='\s+')
@@ -23,7 +24,7 @@ def read_WGBS(file):
 
 def hg38tohg19(row):
     global lo
-    hg19 = lo.convert_coordinate('chr'+str(row[1]['chr']),row[1]['start'])
+    hg19 = lo.convert_coordinate('chr'+convert_num_to_chrstr(row[1]['chr']),row[1]['start'])
     if(len(hg19)>0):
         Chr,start,strand,score = hg19[0]
         try:
@@ -44,7 +45,7 @@ def hg38tohg19(row):
 logger.info('starting preprocess all WGBS sites from hg38 to hg19, and obtain window for each WGBS site for merging 1806 features later...')
 dataset = 'WGBS'
 win_path= home+'data/commons/wins.txt'
-chrs=np.arange(1,22,dtype='int64')
+chrs=np.arange(1,25,dtype='int64')
 wins = get_winid.read_wins(win_path,chrs)
 all_wgbs_sites_file = home+'data/'+dataset+'/all_wgbs_sites_winid.csv'
 hg19_wgbs_file = home+'data/'+dataset+'/hg19_WGBS.csv'

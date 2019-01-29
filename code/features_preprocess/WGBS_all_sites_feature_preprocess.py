@@ -21,7 +21,7 @@ import argparse
 
 def wgbs_sites_selection(tss,allsites):
     tss = tss.sort_values(['chr','coordinate'])
-    allsites = all_sites.sort_values(['chr','coordinate'])
+    allsites = all_sites.sort_values(['chr','coordinate']).reset_index(drop=True)
     i = 0
     selected_sites = []
     #selected_sites = pd.DataFrame(columns=['chr','coordinate','tss_coordinate'])

@@ -15,15 +15,12 @@ from sklearn.svm import SVC,LinearSVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix,recall_score,precision_score,accuracy_score,f1_score,roc_curve,roc_auc_score,precision_recall_curve
 from sklearn import clone
-from sklearn.externals import joblib
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import StratifiedKFold
-from importlib import reload
 from models import deep_network_estimator as dne
 from models import Ensemble_hyperopt as eh
 from models import Ensemble as es
 from hyperopt import fmin,tpe,hp, STATUS_OK,Trials
-from hyperopt_models import parallel_ensemble as pe
 from functools import reduce
 import itertools
 # for aws script
