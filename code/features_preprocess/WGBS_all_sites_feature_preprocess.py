@@ -87,7 +87,7 @@ reset_tracker = (args.reset_tracker=='True')
 
 if all_wgbs_sites:
     logger.info('Using all WGBS sites')
-    selected_wgbs_tss = all_sites
+    selected_wgbs_tss = all_sites[['winid','chr','coordinate']]
 elif not os.path.exists(home+'data/'+dataset+'/all_selected_wgbs_sites'):
     logger.info('Selecting WGBS sites within 100k of tss sites')
     selected_wgbs_tss = wgbs_sites_selection(tss,all_sites)
@@ -273,7 +273,7 @@ for i in np.arange(len(ranges)-1):
     for file in files:    
         feature = pd.read_csv(feature_dir+file)
         logger.info('Concatenating {} of 1806 features'.format(file))
-        logger.info('Its feature number is {}'.format(len(feature.columns))
+        logger.info('Its feature number is {}'.format(len(feature.columns)))
         selected_wgbs = pd.concat([selected_wgbs,feature],axis=1)
     
     rename_features(selected_wgbs)

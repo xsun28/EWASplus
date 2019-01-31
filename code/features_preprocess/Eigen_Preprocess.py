@@ -47,7 +47,6 @@ class Eigen_Preprocess(object):
             left = pos
             right = pos-1
             eigen_file = self.data_dir+'Eigen_hg19_noncoding_annot_chr'+chrm+'.tab.bgz'
-            logger.info('Eigen raw file for chromsome {} is {}'.format(chrm,eigen_file))
             tabix = pysam.Tabixfile(eigen_file)
             while len(phred_one_site) == 0:
                 left = left-1
@@ -70,6 +69,7 @@ class Eigen_Preprocess(object):
             i += 1
             if i%1000 == 0:
                 #print([chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred])
+                logger.info('Eigen raw file for chromsome {} is {}'.format(chrm,eigen_file))
                 logger.info('Processed {} sites...'.format(i))
                 #print([chrm,pos,max_phred,average_phred,max_pc_phred,average_pc_phred]) 
                 
