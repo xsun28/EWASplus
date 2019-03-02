@@ -45,6 +45,7 @@ all_sites = all_sites.join(all_sites_betas).dropna()
 all_sites.reset_index(inplace=True)
 all_sites = all_sites[['id','chr','coordinate','beta_sign','pvalue','beta']]
 all_sites['chr'] = all_sites['chr'].astype('i8')
+all_sites = all_sites.query('chr<23')
 all_sites.sort_values(['pvalue'],inplace=True,ascending=True)
 positive_sites = all_sites.query('pvalue<=@pos_pvalue')
 positive_sites['label'] = np.where(positive_sites['beta_sign']>0,1,-1)
@@ -60,7 +61,7 @@ for beta,beta_sign in positive_sites[['beta','beta_sign']].values:
     tmp_sites = hyper_sites if beta_sign >=0 else hypo_sites
     negs = tmp_sites.loc[nsmallest(10, tmp_sites.index.values, key=lambda i: abs(tmp_sites.loc[i,'beta']-beta)),:]
     select_negs_list.extend(negs.values)
-select_negs = pd.DataFrame(select_negs_list,columns=['id','chr','coordinate','beta_sign','pvalue','beta','label'])
+select_negs = pd.DataFrame(select_negs_list,columns=['id','chr','coordinate','beta_sign','pvalue','beta','label']).drop_duplicates(['chr','coordinate'])
 
 win_path = home+'data/commons/wins.txt'
 logger.info('calculating 200bp window ids of positive and negative training sites')
@@ -88,6 +89,7 @@ all_sites = all_sites.join(all_sites_betas).dropna()
 all_sites.reset_index(inplace=True)
 all_sites = all_sites[['id','chr','coordinate','beta_sign','pvalue','beta']]
 all_sites['chr'] = all_sites['chr'].astype('i8')
+all_sites = all_sites.query('chr<23')
 all_sites.sort_values(['pvalue'],inplace=True,ascending=True)
 
 all_450k_sites_with_winid, __ = commons.merge_with_feature_windows(win_path,all_sites)

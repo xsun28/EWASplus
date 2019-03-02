@@ -8,6 +8,7 @@ logger = commons.logger
 #from features_preprocess import get_winid
 import pysam
 import pybedtools
+from features_preprocess.get_winid import convert_num_to_chrstr,convert_chrstr_to_num
 
 class GWAVA_Preprocess(object):
     def __init__(self, data_dir = os.path.join(extra_storage, 'GWAVA'),sites_file = os.path.join(home, 'data', 'commons', 'all_sites_winid.csv'),additional_feature_file = os.path.join(home, 'data', 'features', 'addtional_features')):
@@ -24,7 +25,7 @@ class GWAVA_Preprocess(object):
         we need to use the same logic to treat selected sites file
         """
         all_sites_df = pd.read_csv(self.sites_file)
-        all_sites_df['chr'] = 'chr' + all_sites_df['chr'].astype('str')
+        all_sites_df['chr'] = 'chr' + all_sites_df['chr'].apply(lambda x: convert_num_to_chrstr(x))
         all_sites_df.sort_values(by=['chr', 'coordinate'], inplace=True)
         all_sites_df.rename({'coordinate': 'base_end'}, axis='columns', inplace=True)
         all_sites_df['base_start'] = all_sites_df['base_end'] - 1
@@ -38,7 +39,7 @@ class GWAVA_Preprocess(object):
         gwava_scores_df = closest_gwava_BedTool.to_dataframe()[['chrom', 'end', 'thickEnd', 'itemRgb', 'blockCount', 'blockSizes']]
 
         gwava_scores_df.columns = ['chr', 'coordinate', 'GWAVA_region_score', 'GWAVA_tss_score', 'GWAVA_unmatched_score', 'GWAVA_dist_to_nearest_snp'] #1-based index here
-        gwava_scores_df['chr'] = gwava_scores_df['chr'].str.replace('chr', '').astype('int') #be consistent with other additional features
+        gwava_scores_df['chr'] = gwava_scores_df['chr'].apply(lambda x: convert_chrstr_to_num(x)) #be consistent with other additional features
 
         agg_dict = {'GWAVA_region_score': 'mean',
                     'GWAVA_tss_score': 'mean',

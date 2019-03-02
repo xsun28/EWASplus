@@ -22,6 +22,8 @@ betas = pd.read_csv(home_path+'data/Cd/RICHS_betaValue_summary.csv',skiprows=1,h
 all_sites.sort_values(['id'],inplace=True)
 betas.sort_values(['id'],inplace=True)
 all_sites = pd.merge(all_sites,betas,on=['id'],how='left')
+all_sites['chr'] = all_sites['chr'].astype('i8')
+all_sites = all_sites.query('chr<23')
 all_sites.rename(columns={'beta_mean':'beta'},inplace=True)
 all_sites.sort_values(['pvalue'],inplace=True,ascending=True)
 positive_sites = all_sites.query('pvalue<=@pos_pvalue')
@@ -38,7 +40,7 @@ for beta,beta_sign in positive_sites[['beta','beta_sign']].values:
     tmp_sites = hyper_sites if beta_sign >=0 else hypo_sites
     negs = tmp_sites.loc[nsmallest(10, tmp_sites.index.values, key=lambda i: abs(tmp_sites.loc[i,'beta']-beta)),:]
     select_negs_list.extend(negs.values)
-select_negs = pd.DataFrame(select_negs_list,columns=['id','chr','coordinate','beta_sign','pvalue','beta','label'])
+select_negs = pd.DataFrame(select_negs_list,columns=['id','chr','coordinate','beta_sign','pvalue','beta','label']).drop_duplicates(['chr','coordinate'])
 
 win_path = home_path+'data/commons/wins.txt'
 pos_sites_with_winid, neg_sites_with_winid = commons.merge_with_feature_windows(win_path,positive_sites,select_negs)

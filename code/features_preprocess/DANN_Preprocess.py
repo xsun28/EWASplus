@@ -13,6 +13,8 @@ logger = commons.logger
 extra_storage = commons.extra_storage
 from features_preprocess import get_winid
 import pysam
+from features_preprocess.get_winid import convert_num_to_chrstr,convert_chrstr_to_num
+
 ################################################################
 
 class DANN_Preprocess(object):
@@ -36,7 +38,7 @@ class DANN_Preprocess(object):
         i = 0
         for site in all_sites.values:
             scores_one_site = []
-            chrm = str(int(site[1]))
+            chrm = convert_num_to_chrstr(int(site[1]))
             pos = int(site[2])
             left = pos
             right = pos-1
@@ -47,7 +49,7 @@ class DANN_Preprocess(object):
                     scores_one_site.extend([float(row[-1])])
             average_score = np.mean(scores_one_site)
             max_score = np.max(scores_one_site)
-            dann_scores.extend([[chrm,pos,max_score,average_score]])
+            dann_scores.extend([[convert_chrstr_to_num(chrm),pos,max_score,average_score]])
             i+=1
             if i%1000 == 0:              
                 logger.info('Processed {} sites...'.format(i))

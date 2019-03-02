@@ -73,7 +73,7 @@ args = parser.parse_args()
 
 dataset = 'WGBS'
 all_wgbs_sites_file = home+'data/'+dataset+'/all_wgbs_sites_winid.csv'
-all_sites = pd.read_csv(all_wgbs_sites_file)
+all_sites = pd.read_csv(all_wgbs_sites_file).query('chr<23')
 logger.info('Read all WGBS sites file with window id at '+all_wgbs_sites_file)
 
 chrs = all_sites['chr'].unique()
@@ -108,7 +108,7 @@ if reset_tracker:
     logger.info('reset features preprocess progress tracker')
     tracker = pd.DataFrame({'start':ranges,'1806features':np.zeros_like(ranges),'wgbs':np.zeros_like(ranges),'atac':np.zeros_like(ranges),
                            'rnaseq':np.zeros_like(ranges),'cadd':np.zeros_like(ranges),'dann':np.zeros_like(ranges),
-                            'eigen':np.zeros_like(ranges),'genocanyon':np.zeros_like(ranges),'gwava':np.zeros_like(ranges)})
+                            'eigen':np.zeros_like(ranges),'genocanyon':np.zeros_like(ranges),'gwava':np.zeros_like(ranges),'combined':np.zeros_like(ranges)})
     tracker = tracker.set_index('start')
     tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
 ranges = np.append(ranges,end_pos)    
@@ -261,6 +261,10 @@ for i in np.arange(len(ranges)-1):
         tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')
         gc.collect()  
     
+    tracker = pd.read_pickle(home+'data/'+dataset+'/tracker.pkl')
+    if tracker.loc[start,'combined'] == 1:
+        logger.info('Features already combined for WGBS sites with windows id of range from {} to {}'.format(start,end))
+        continue
     selected_wgbs = pd.read_csv(home+'data/'+dataset+'/all_sites_winid.csv')
     logger.info('WGBS sites with windows id of range from {} to {} are in {}'.format(start,end,selected_wgbs))
     feature_dir = home+'data/features/'+dataset+'/'
@@ -303,4 +307,6 @@ for i in np.arange(len(ranges)-1):
     with pd.HDFStore(home+'data/'+dataset+'/all_features_'+str(start)+'_'+str(end),'w') as h5s:
         h5s['all_features'] = selected_wgbs
         logger.info('Combined features of WGBS sites within range from {} to {} are saved in {}'.format(start,end,home+'data/'+dataset+'/all_features_'+str(start)+'_'+str(end)))
-    gc.collect()    
+    gc.collect()
+    tracker.loc[start,'combined'] == 1
+    tracker.to_pickle(home+'data/'+dataset+'/tracker.pkl')

@@ -16,6 +16,7 @@ logger = commons.logger
 from features_preprocess import get_winid
 import pysam
 from sklearn.base import BaseEstimator,TransformerMixin
+from features_preprocess.get_winid import convert_num_to_chrstr,convert_chrstr_to_num
 #----------------------------------------------------
 
 class CADD_Preprocess(BaseEstimator,TransformerMixin):
@@ -39,7 +40,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
         for site in all_sites.values:
             #raw_scores_one_site = []
             phred_one_site = []
-            chrm = str(int(site[1]))
+            chrm = convert_num_to_chrstr(int(site[1]))
             pos = int(site[2])
             left = pos
             right = pos-1
@@ -55,7 +56,7 @@ class CADD_Preprocess(BaseEstimator,TransformerMixin):
             average_phred = np.mean(phred_one_site)
             max_phred = np.max(phred_one_site)
             #CADD_scores.extend([[chrm,pos,max_raw,average_raw,max_phred,average_phred]])
-            CADD_scores.extend([[chrm,pos,max_phred,average_phred]])
+            CADD_scores.extend([[convert_chrstr_to_num(chrm),pos,max_phred,average_phred]])
             i+=1
             if i%1000 == 0:
                 #print([chrm,pos,max_raw,average_raw,max_phred,average_phred])

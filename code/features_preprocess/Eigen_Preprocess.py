@@ -15,6 +15,8 @@ logger = commons.logger
 extra_storage = commons.extra_storage
 from features_preprocess import get_winid
 import pysam
+from features_preprocess.get_winid import convert_num_to_chrstr,convert_chrstr_to_num
+
 #----------------------------------------------------
 
 #
@@ -42,7 +44,7 @@ class Eigen_Preprocess(object):
             phred_one_site = []
             #pc_raw_scores_one_site = []
             pc_phred_one_site = []
-            chrm = str(int(site[1]))
+            chrm = convert_num_to_chrstr(int(site[1]))
             pos = int(site[2])
             left = pos
             right = pos-1
@@ -64,7 +66,7 @@ class Eigen_Preprocess(object):
             #max_pc_raw = np.max(pc_raw_scores_one_site)
             average_pc_phred = np.mean(pc_phred_one_site)
             max_pc_phred = np.max(pc_phred_one_site)
-            eigen_scores.extend([[chrm,pos,max_phred,average_phred,max_pc_phred,average_pc_phred]])
+            eigen_scores.extend([[convert_chrstr_to_num(chrm),pos,max_phred,average_phred,max_pc_phred,average_pc_phred]])
             #eigen_scores.extend([[chrm,pos,max_raw,average_raw,max_phred,average_phred,max_pc_raw,average_pc_raw,max_pc_phred,average_pc_phred]])
             i += 1
             if i%1000 == 0:
