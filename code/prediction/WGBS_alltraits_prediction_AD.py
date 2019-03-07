@@ -113,7 +113,7 @@ for pred_prob,trait in zip(pred_probs,traits):
             all_probs_450k = pd.concat([all_probs_450k,h5s['pred_probs_450k']],axis=1)
     all_probs_450k.rename({'positive':'positive_'+trait,'negative':'negative_'+trait},axis=1,inplace=True)
     
-all_probs_450k = all_probs_450k.ix[:,~all_probs_450k.columns.duplicated()]
+all_probs_450k = all_probs_450k.loc[:,~all_probs_450k.columns.duplicated()]
 all_450k_features = home+'data/AD_CpG/all_450k_features'
 with pd.HDFStore(all_450k_features,'r') as h5s:
     all_450k_data = h5s['all_450k_features']

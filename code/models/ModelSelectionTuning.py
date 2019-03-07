@@ -34,7 +34,6 @@ else:
     wtf_hi = 0.5 if dataset=="Cd" else 1.5
     
 log_dir = home+'logs/'
-logger = Logger.Logger(log_dir,False).get_logger()
 with pd.HDFStore(home+'data/'+dataset+'/selected_features','r') as h5s:
     train_x =h5s['train_x'] 
     train_label = h5s['train_label'] 

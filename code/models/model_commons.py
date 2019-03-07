@@ -177,10 +177,10 @@ def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,u
         search_methods = get_train_models(models=methods)
     class_num = len(y.unique())
     for train_index,test_index in skfolds.split(x,y):
-        train_fold = x.ix[train_index,:]
+        train_fold = x.iloc[train_index,:]
         train_label = y[train_index]
         sample_weight_train = sample_weight[train_index]
-        test_fold = x.ix[test_index,:]
+        test_fold = x.iloc[test_index,:]
         test_label = y[test_index]
         sample_weight_test = sample_weight[test_index]
         if up_sampling:

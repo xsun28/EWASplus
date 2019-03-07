@@ -20,7 +20,7 @@ import argparse
 
 
 def wgbs_sites_selection(tss,allsites):
-    tss = tss.sort_values(['chr','coordinate'])
+    tss = tss.sort_values(['chr','coordinate']).reset_index(drop=True)
     allsites = all_sites.sort_values(['chr','coordinate']).reset_index(drop=True)
     i = 0
     selected_sites = []
@@ -33,13 +33,13 @@ def wgbs_sites_selection(tss,allsites):
         chr = row[1]['chr']
         coordinate = row[1]['coordinate']
         winid = row[1]['winid']
-        if chr==tss.ix[i,'chr'] and coordinate>=tss.ix[i,'before'] and coordinate<=tss.ix[i,'after']:
-            selected_sites.extend([[winid,chr,coordinate,tss.ix[i,'chr'],tss.ix[i,'coordinate']]])
+        if chr==tss.iloc[i,'chr'] and coordinate>=tss.iloc[i,'before'] and coordinate<=tss.iloc[i,'after']:
+            selected_sites.extend([[winid,chr,coordinate,tss.iloc[i,'chr'],tss.iloc[i,'coordinate']]])
         else:
-            while  i<len(tss) and (chr>tss.ix[i,'chr'] or (chr==tss.ix[i,'chr'] and coordinate>tss.ix[i,'after'])):
+            while  i<len(tss) and (chr>tss.iloc[i,'chr'] or (chr==tss.iloc[i,'chr'] and coordinate>tss.iloc[i,'after'])):
                 i += 1
-            if i<len(tss) and chr==tss.ix[i,'chr'] and coordinate>=tss.ix[i,'before'] and coordinate<=tss.ix[i,'after']:
-                selected_sites.extend([[winid,chr,coordinate,tss.ix[i,'chr'],tss.ix[i,'coordinate']]])
+            if i<len(tss) and chr==tss.iloc[i,'chr'] and coordinate>=tss.iloc[i,'before'] and coordinate<=tss.iloc[i,'after']:
+                selected_sites.extend([[winid,chr,coordinate,tss.iloc[i,'chr'],tss.iloc[i,'coordinate']]])
     df = pd.DataFrame(selected_sites,columns=['winid','chr','coordinate','tss_chr','tss_coordinate'])
     df['chr'] = df['chr'].astype('i8')
     return df
@@ -49,7 +49,7 @@ def nearest_tss(tss,sites_df):
     merged = pd.merge(sites_df,tss,how='outer',on=['chr','coordinate'])
     merged.sort_values(['chr','coordinate'],inplace=True)
     merged.rename(columns={'strand':'before_tss'},inplace=True)
-    merged.ix[merged['before_tss'].isnull()==False, 'before_tss'] = merged.ix[merged['before_tss'].isnull()==False,'coordinate']
+    merged.loc[merged['before_tss'].isnull()==False, 'before_tss'] = merged.loc[merged['before_tss'].isnull()==False,'coordinate']
     merged['after_tss'] = merged['before_tss']
     merged['before_tss'].fillna(method='ffill', inplace=True)
     merged['after_tss'].fillna(method='bfill',inplace=True)
@@ -57,9 +57,9 @@ def nearest_tss(tss,sites_df):
     merged['dist_to_after_tss'] = np.abs(merged['coordinate']-merged['after_tss'])
     merged['tss'] = None
     before_ix = (merged['dist_to_before_tss'] < merged['dist_to_after_tss']) | (merged['dist_to_after_tss'].isnull())
-    merged.ix[before_ix,'tss'] = merged.ix[before_ix,'before_tss']
+    merged.loc[before_ix,'tss'] = merged.loc[before_ix,'before_tss']
     after_ix = (merged['dist_to_before_tss'] >= merged['dist_to_after_tss']) | (merged['dist_to_before_tss'].isnull())
-    merged.ix[after_ix,'tss'] = merged.ix[after_ix,'after_tss']
+    merged.loc[after_ix,'tss'] = merged.loc[after_ix,'after_tss']
     merged['dist_to_nearest_tss'] = np.abs(merged['coordinate']-merged['tss'])
     merged.drop(['before_tss','after_tss','tss','dist_to_before_tss','dist_to_after_tss'],axis=1,inplace=True)
     merged.dropna(axis=0,inplace=True)

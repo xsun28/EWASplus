@@ -102,7 +102,7 @@ for i in np.arange(len(ranges)-1):
     pred_prob = ensemble_hyopt.predict_proba(wgbs_data)
     pred_prob = pd.DataFrame(pred_prob,columns=['negative','positive'])
     target_sites = pred_prob.sort_values(['positive'],ascending=False)#.query('positive >= 0.5')
-    target_sites_coordinate = wgbs_all_data.ix[target_sites.index,['chr','coordinate']]
+    target_sites_coordinate = wgbs_all_data.loc[target_sites.index,['chr','coordinate']]
     target_sites = target_sites.join(target_sites_coordinate)
     with pd.HDFStore(pred_probs,'a') as h5s:
         h5s[str(start)+'_'+str(end)] = target_sites

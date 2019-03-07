@@ -26,8 +26,8 @@ def normalize_feature(all_features,dataset='AD_CpG'):
             print(col)
             atn = ctnd.AnyToNormal(col)
             mapping = atn.transform(normalize_all_features)
-            mappings[mapping.columns[0]] = mapping.ix[:,0]
-            mappings[mapping.columns[1]] = mapping.ix[:,1]
+            mappings[mapping.columns[0]] = mapping.iloc[:,0]
+            mappings[mapping.columns[1]] = mapping.iloc[:,1]
         else: 
             continue
     h5s = pd.HDFStore(home+'data/'+dataset+'/normalize_mapping','w')

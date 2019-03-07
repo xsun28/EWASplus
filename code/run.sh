@@ -61,7 +61,7 @@ read -p " Enter the name of the dataset (AD/Cd): " dataset
 
 if [[ "$dataset" == "AD" ]]; then
 	traits=(amyloid cerad ceradaf tangles cogdec gpath braak)
-	sed -i "s/dataset = .*/dataset = 'AD_CpG'/" common/commons.py
+	sed -i "s/^dataset = .*/dataset = 'AD_CpG'/" common/commons.py
 	read -p "Preprocess features for AD 450k sites? (Y/N)" arrayFeatures
 	if [[ "${arrayFeatures}" == "Y" ]]; then
 		read -p "Reset 450k features process progress tracker? (True/False)" reset450KTracker
@@ -75,7 +75,7 @@ if [[ "$dataset" == "AD" ]]; then
 		fi
 			
 		echo "start processing $trait..."
-		sed -i "s/type_name = .*/type_name = '$trait'/" common/commons.py	
+		sed -i "s/\([[:space:]]\+type_name\) = .*/\1 = '$trait'/" common/commons.py	
 		read -p "Select training sites for ${trait}? (Y/N)" traitSelection
 		if [[ "$traitSelection" == "Y" ]]; then
 			echo "Start ${trait} training sites selection"
@@ -129,7 +129,7 @@ if [[ "$dataset" == "AD" ]]; then
 	fi
 		
 elif [[ "$dataset" == "Cd" ]]; then
-	sed -i "s/dataset = .*/dataset = 'Cd'/" common/commons.py
+	sed -i "s/^dataset = .*/dataset = 'Cd'/" common/commons.py
         read -p "Preprocess features for Cd 450k sites? (Y/N)" arrayFeatures
         if [[ "${arrayFeatures}" == "Y" ]]; then
                 echo "Preprocess features for all 450K WGBS sites"

@@ -48,7 +48,7 @@ def sample_weights(X,y,class_weights=None,factor=0.5):
             weights[y==cls] = weight
     else:
         controls_ix = y[y==0].index
-        if X.ix[controls_ix,'pvalue'].isnull().sum() > 0:
+        if X.loc[controls_ix,'pvalue'].isnull().sum() > 0:
             weights_list = [np.power(-(np.log(pvalue)),factor) if not math.isnan(pvalue) else 1 for pvalue in X['pvalue'] ]
             weights = pd.Series(weights_list,index=y.index)
         else:       
@@ -72,12 +72,12 @@ def find_nearest_450ksites(window,sites,wgbs):
     return nearby_all_sites.set_index(['wgbs_chr','wgbs_coordinate'])  
 #-----------------------------------------------------------------------------
 def train_test_split(data,test_size=0.1,scaler='standard'):
-    total_dataset = 'AD_CpG'
-    total_dataset = 'AD_CpG'
+    total_dataset = data.copy()
+    total_dataset = total_dataset.reset_index().drop('index',axis=1)   #reset index or split below will generate filtered index and NAN values
     split = StratifiedShuffleSplit(n_splits=1,test_size=test_size,random_state=17)
     for train_index, test_index in split.split(total_dataset,total_dataset['label']):
-        train_set = total_dataset.ix[train_index]
-        test_set = total_dataset.ix[test_index]
+        train_set = total_dataset.iloc[train_index]
+        test_set = total_dataset.iloc[test_index]
     scaler = ds.DataScaler(scaler=scaler)
     train_x = scaler.fit_transform(train_set[train_set.columns.drop(['label','pvalue'])])
     train_x['pvalue'] = train_set['pvalue']
@@ -147,10 +147,10 @@ def cross_validate_score(estimator,X,y=None,sample_weight=None,cv=3):
         i += 1
         print('In {}th cross validation'.format(i))       
         clone_est = clone(estimator)
-        x_train_fold = X.ix[train_index,:]
+        x_train_fold = X.iloc[train_index,:]
         y_train_fold = y[train_index]
         weight_train_fold = sample_weight[train_index]
-        x_test_fold = X.ix[test_index]
+        x_test_fold = X.iloc[test_index]
         y_test_fold = y[test_index]
         weight_test_fold = sample_weight[test_index]
         clone_est.fit(x_train_fold,y_train_fold,weight_train_fold)
