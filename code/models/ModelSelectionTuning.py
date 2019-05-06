@@ -30,8 +30,8 @@ if up_sampling:
     wtf_lo = 0.05 if dataset=="Cd" else 0.2
     wtf_hi = 0.1 if dataset=="Cd" else 0.3
 else:
-    wtf_lo = 1.0/3 if dataset=="Cd" else 1 
-    wtf_hi = 0.5 if dataset=="Cd" else 1.5
+    wtf_lo = 1.0/3 if dataset=="Cd" else 0.4 
+    wtf_hi = 0.5 if dataset=="Cd" else 0.45
     
 log_dir = home+'logs/'
 with pd.HDFStore(home+'data/'+dataset+'/selected_features','r') as h5s:
@@ -96,7 +96,13 @@ plot_methods = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier',
 plot_curves_cv(all_probs,pd.Series(pred_probs_all_fold['label']),methods=plot_methods,types='roc_curve')
 plot_curves_cv(all_probs,pd.Series(pred_probs_all_fold['label']),methods=plot_methods,types='precision_recall_curve')
 
-
+##plot all traits roc and pr curves of same method on a single plot
+#if "AD_CpG" in dataset:
+#    traits = ['amyloidwith','braakwith','ceradwith','ceradafwith','cogdecwith','gpathwith','tangleswith']
+#    for method in all_probs.keys(): 
+#        ploct_curves_all_traits(traits,method,types='roc_curve')
+#        ploct_curves_all_traits(traits,method,types='precision_recall_curve')
+        
 print('model best hyperparameters for '+dataset+': ')
 print(best_params_cv)
 

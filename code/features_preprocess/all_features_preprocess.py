@@ -110,11 +110,11 @@ files = os.listdir(feature_dir)
 pattern = '.*all.csv$'
 reg = re.compile(pattern)
 files = [name for name in files if len(reg.findall(name))>0]
-
+files.sort()
 for file in files:    
     feature = pd.read_csv(feature_dir+file)
     print(len(feature.columns))
-    all_sites = pd.concat([all_sites,feature],axis=1)
+    all_sites = pd.concat([all_sites.reset_index(drop=True),feature.reset_index(drop=True)],axis=1)
 
 rename_features(all_sites)
 all_sites.drop(['start','end'],axis=1,inplace=True)
@@ -124,7 +124,7 @@ additional_features = ['ATAC','CADD','DANN','Eigen','GenoCanyon','RNASeq','WGBS'
 with pd.HDFStore(feature_dir+'addtional_features','r') as h5s:
     for feature in additional_features:
         feature_frame = h5s[feature]
-        all_sites = pd.concat([all_sites,feature_frame],axis=1)
+        all_sites = pd.concat([all_sites.reset_index(drop=True),feature_frame.reset_index(drop=True)],axis=1)
 all_sites = all_sites.loc[:,~all_sites.columns.duplicated()]
 all_sites['chr'] = all_sites['chr'].astype('i8')
 

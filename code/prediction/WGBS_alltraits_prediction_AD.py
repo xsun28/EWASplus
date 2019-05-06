@@ -13,6 +13,7 @@ from models import Ensemble_hyperopt as eh
 from features_preprocess import get_winid
 import gc
 import argparse
+from prediction_commons import *
 #############################################Get top 500 sites predicted commonly by all traits
 parser = argparse.ArgumentParser(description='WGBS top 500 and 450 k sites methylation prediction commonly by all traits')
 parser.add_argument('-m',required=False,default=['LogisticRegression','xgbooster'],help='prediction methods',dest='methods',metavar='LogisticRegression xgbooster',nargs='+')
@@ -110,7 +111,7 @@ for pred_prob,trait in zip(pred_probs,traits):
             all_probs_450k = h5s['pred_probs_450k']
             first = False
         else:
-            all_probs_450k = pd.concat([all_probs_450k,h5s['pred_probs_450k']],axis=1)
+            all_probs_450k = pd.concat([all_probs_450k.reset_index(drop=True),h5s['pred_probs_450k'].reset_index(drop=True)],axis=1)
     all_probs_450k.rename({'positive':'positive_'+trait,'negative':'negative_'+trait},axis=1,inplace=True)
     
 all_probs_450k = all_probs_450k.loc[:,~all_probs_450k.columns.duplicated()]
@@ -142,7 +143,5 @@ for trait,pvalue in zip(traits,trait_pvalues):
         #weight_score += all_probs_450k['positive_'+trait]*trait_result['LogisticRegression-xgbooster'][weight_scale]
         weight_score += all_probs_450k['positive_'+trait]*trait_result[methods][weight_scale]
 all_probs_450k['weighted_positive'] = weight_score/total_weight
-
-trait_pvalue = pd.read_csv(home+'data/AD_CpG/amyloidwith/all_450k_sites_winid.csv',usecols=[1,2,3,4],header=None,skiprows=1,names=['chr','coordinate',trait+'_pvalue',trait+'_beta'])
 
 all_probs_450k.to_csv(home+'data/AD_CpG/450kwithpredictedprob.csv',index=False)

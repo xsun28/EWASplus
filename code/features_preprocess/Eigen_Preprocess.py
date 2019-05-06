@@ -31,7 +31,7 @@ class Eigen_Preprocess(object):
     def process(self):
         all_sites = pd.read_csv(self.sites_file)
         all_sites = get_winid.convert_chr_to_num(all_sites)
-        all_sites.sort_values(['chr','coordinate'],inplace=True)
+        #all_sites.sort_values(['chr','coordinate'],inplace=True)
 
         #reg = re.compile('^Eigen.*bgz$')
         #reg1 = re.compile('chr[0-9]{1,2}')

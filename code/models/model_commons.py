@@ -13,7 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC,LinearSVC
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import confusion_matrix,recall_score,precision_score,accuracy_score,f1_score,roc_curve,roc_auc_score,precision_recall_curve
+from sklearn.metrics import confusion_matrix,recall_score,precision_score,accuracy_score,f1_score,roc_curve,roc_auc_score,precision_recall_curve,auc
 from sklearn import clone
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import StratifiedKFold
@@ -23,6 +23,7 @@ from models import Ensemble as es
 from hyperopt import fmin,tpe,hp, STATUS_OK,Trials
 from functools import reduce
 import itertools
+from sklearn.externals import joblib
 # for aws script
 import matplotlib
 matplotlib.use('agg')
@@ -32,6 +33,38 @@ if dataset == 'AD_CpG':
     type_name = commons.type_name  ## amyloid, cerad, tangles
     with_cell_type = commons.with_cell_type ## with or without
 
+def ploct_curves_all_traits(traits,method,types='roc_curve',title=None):
+    dt = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    colors = ['r','b','g','k','c','m','y']
+    methods_cv = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier']
+    fig_file_name = 'all_traits_10foldCV_'+method+'_allSitesPredProbs_'+types+'_'+dt
+    fig_path = os.path.join(home, 'figs', fig_file_name)
+    plt.figure(figsize=(7,5))
+    if title is None:
+        plt.title(types+'({})'.format(method))
+    else:
+        plt.title(title)
+    plt.axis([0,1,0,1])
+    lw = 2
+    for trait,color in zip(traits,colors[:len(traits)]):
+        pred_probs_all_fold = joblib.load(home+'data/AD_CpG/'+trait+'/pred_probs_all_fold.pkl')
+        label = pd.Series(pred_probs_all_fold['label'])
+        all_results,probs = methods_combination_results(methods_cv,pred_probs_all_fold,label)
+        if types == 'precision_recall_curve':       
+            precision,recall,threshold = precision_recall_curve(label,probs[method])
+            plt.plot(recall,precision,color,linewidth=2,label=trait[:-4])
+            plt.xlabel('Recall')
+            plt.ylabel('Precision')
+            plt.plot([0, 1], [1, 0], color='navy', lw=lw, linestyle='--')
+        if types == 'roc_curve':
+            fpr,tpr, threshold = roc_curve(label,probs[method])
+            plt.plot(fpr,tpr,color,linewidth=2,label=trait[:-4])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+    plt.legend(loc='best')
+    plt.savefig(fig_path)
+        
 def plot_curves_cv(probs,label,methods,types='roc_curve'):
     dt = datetime.utcnow().strftime("%Y%m%d%H%M%S")
     fig_file_name = dataset+'_'+type_name+with_cell_type+'_10foldCV_allSitesPredProbs_'+types+'_'+dt
@@ -145,8 +178,11 @@ def scores(y,predicts,pred_probs,average='macro'):
         precision = precision_score(y,predicts)      
         accuracy = accuracy_score(y,predicts)
         f1 = f1_score(y,predicts)
-        auc = roc_auc_score(y,pred_probs)
-        score_map['auc'] = auc
+        roc_auc = roc_auc_score(y,pred_probs)
+        score_map['roc_auc'] = roc_auc
+        precision_pr, recall_pr, thresholds_pr = precision_recall_curve(y,pred_probs)
+        pr_auc = auc(recall_pr, precision_pr)
+        score_map['pr_auc'] = pr_auc
     else:
         recall = recall_score(y,predicts,average=average)      
         precision = precision_score(y,predicts,average=average)      
@@ -196,11 +232,14 @@ def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,u
         else:
             ensemble = eh.Ensemble(methods,params)
             ensemble.fit(train_fold,train_label,sample_weight=sample_weight_train,max_iter=100)
-        score = ensemble.score(test_fold,test_label)
-        results.extend([score])
-        model_prob = ensemble.model_probs()
+        score = ensemble.score(test_fold,test_label) #score is a tuple containing logloss_score, f1_avg_score, recall_avg_score, precision_avg_score, auc_score of the current fold
+        logger.info("current fold scores are:{}".format(score))
+        results.extend([score]) #contains scores of all folds
+        model_prob = ensemble.model_probs()#model_prob is a dictionary containing predicted probs of each method of the current fold
+        logger.info("current fold method predicted probs are:{}".format(model_prob))
         model_preds = ensemble.model_predicts() 
-        ensemble_prob = ensemble.predict_proba(test_fold)
+        ensemble_prob = ensemble.predict_proba(test_fold)#aggregated predicted probs of all tested methods
+        logger.info('current fold all methods predicted probs are:{}'.format(ensemble_prob))
         ensemble_pred = ensemble.predict(test_fold)
         
         temp_df = pd.DataFrame(columns=pred_probs_cv.columns)
@@ -212,8 +251,8 @@ def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,u
         temp_df['ensemble'] = temp_df['ensemble'].astype('f')
         temp_df['label'] = test_label
         temp_df['label'] = temp_df['label'].astype('i8')
-        pred_probs_all_fold['label'].extend(test_label.astype('i8').values)
-        pred_probs_cv = pred_probs_cv.append(temp_df,ignore_index=True)
+        pred_probs_all_fold['label'].extend(test_label.astype('i8').values) #dictionary contains label and predicted probs(both positive and negative) of each methods for all folds
+        pred_probs_cv = pred_probs_cv.append(temp_df,ignore_index=True) #dataframe containing label and predicted positive probs of ensemble and each methods
         
         
         temp_df = pd.DataFrame(columns=predicts_cv.columns)
@@ -226,8 +265,8 @@ def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,u
         temp_df['label'] = temp_df['label'].astype('i8')
         predicts_cv = predicts_cv.append(temp_df,ignore_index=True)
         
-        comb_results,_ = methods_combination_results(methods,model_prob,test_label)
-        model_combine_scores_cv.extend([comb_results])
+        comb_results,_ = methods_combination_results(methods,model_prob,test_label) 
+        model_combine_scores_cv.extend([comb_results])#predicted probs of all combinations of methods of all folds
         model_score = ensemble.get_model_scores()
         model_scores_cv.extend([model_score.copy()])
         best_params = ensemble.best_params()
@@ -361,11 +400,11 @@ def methods_combination_results(methods,model_probs,test_label):
         iterator = itertools.combinations(methods,i)
         for combination in iterator:
             key = reduce(lambda x,y: x+'-'+y,combination)
-            print(key)
+            #print(key)
             test_model_probs = {method:prob for method,prob in model_probs.items() if method in combination}
             pred_probs,pred = soft_voting(test_model_probs)
             all_probs[key] = pred_probs[:,1]
-            print(pred_probs)
+            #print(pred_probs)
             #print(pred)
             test_score = scores(test_label,pred,pred_probs[:,1])
             results[key] = test_score.copy()
@@ -375,7 +414,7 @@ def upsampling(train_x,train_label,sample_weights_train,fold=9):
     trainx = train_x.copy()
     trainx['label'] = train_label
     trainx['weight'] = sample_weights_train
-    up_samples = commons.upSampling(trainx[trainx['label']==1],10)
+    up_samples = commons.upSampling(trainx[trainx['label']==1],fold)
     trainx = trainx.append(up_samples,ignore_index=True).sample(frac=1).reset_index(drop=True)
     train_label = trainx['label']
     sample_weights_train = trainx['weight']

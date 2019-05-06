@@ -26,7 +26,7 @@ class GWAVA_Preprocess(object):
         """
         all_sites_df = pd.read_csv(self.sites_file)
         all_sites_df['chr'] = 'chr' + all_sites_df['chr'].apply(lambda x: convert_num_to_chrstr(x))
-        all_sites_df.sort_values(by=['chr', 'coordinate'], inplace=True)
+        #all_sites_df.sort_values(by=['chr', 'coordinate'], inplace=True)
         all_sites_df.rename({'coordinate': 'base_end'}, axis='columns', inplace=True)
         all_sites_df['base_start'] = all_sites_df['base_end'] - 1
         all_sites_df['base_start'] = all_sites_df['base_start'].astype('i8')

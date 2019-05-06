@@ -76,11 +76,11 @@ all_wgbs_sites_file = home+'data/'+dataset+'/all_wgbs_sites_winid.csv'
 all_sites = pd.read_csv(all_wgbs_sites_file).query('chr<23')
 logger.info('Read all WGBS sites file with window id at '+all_wgbs_sites_file)
 
-chrs = all_sites['chr'].unique()
-logger.info('chromosomes of all WGBS sites are: '+str(chrs))
-cols=['chr', 'coordinate','strand']
-tss =  pd.read_csv(home+'data/commons/tss.txt',sep='\s+',header=None,names=cols,skiprows=1)
-tss = get_winid.convert_chr_to_num(tss,chrs)
+#chrs = all_sites['chr'].unique()
+#logger.info('chromosomes of all WGBS sites are: '+str(chrs))
+#cols=['chr', 'coordinate','strand']
+#tss =  pd.read_csv(home+'data/commons/tss.txt',sep='\s+',header=None,names=cols,skiprows=1)
+#tss = get_winid.convert_chr_to_num(tss,chrs)
 
 all_wgbs_sites = (args.all=='True')
 reset_tracker = (args.reset_tracker=='True')
@@ -273,12 +273,12 @@ for i in np.arange(len(ranges)-1):
     pattern = '.*all.csv$'
     reg = re.compile(pattern)
     files = [name for name in files if len(reg.findall(name))>0]
-    
+    files.sort()
     for file in files:    
         feature = pd.read_csv(feature_dir+file)
         logger.info('Concatenating {} of 1806 features'.format(file))
         logger.info('Its feature number is {}'.format(len(feature.columns)))
-        selected_wgbs = pd.concat([selected_wgbs,feature],axis=1)
+        selected_wgbs = pd.concat([selected_wgbs.reset_index(drop=True),feature.reset_index(drop=True)],axis=1)
     
     rename_features(selected_wgbs)
     logger.info('complete concatenating 1806 features to WGBS sites of range from {} to {}'.format(start,end))
@@ -289,7 +289,7 @@ for i in np.arange(len(ranges)-1):
     with pd.HDFStore(additional_feature_file,'r') as h5s:
         for feature in additional_features:
             feature_frame = h5s[feature]
-            selected_wgbs = pd.concat([selected_wgbs,feature_frame],axis=1)
+            selected_wgbs = pd.concat([selected_wgbs.reset_index(drop=True),feature_frame.reset_index(drop=True)],axis=1)
             logger.info('{} feature concatenated'.format(feature))
     selected_wgbs = selected_wgbs.loc[:,~selected_wgbs.columns.duplicated()]
     selected_wgbs['chr'] = selected_wgbs['chr'].astype('i8')

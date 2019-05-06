@@ -100,10 +100,10 @@ with pd.HDFStore(home+'data/AD_CpG/'+type_name+with_cell_type+'/all_450k_sites_w
 all_450k_sites_with_winid.to_csv(home+'data/AD_CpG/'+type_name+with_cell_type+'/all_450k_sites_winid.csv',index=False)
 logger.info('all 450k sites of AD {} with chromsome, coordinate, windows id and pvalues are saved in {}'.format(type_name,home+'data/AD_CpG/'+type_name+with_cell_type+'/all_450k_sites_winid'))
 
-if not os.path.exists(home+'data/AD_CpG/selected_450k_pos_winid.csv'):
+if type_name == 'amyloid': ##only save once
     all_450k_sites_with_winid['winid'].to_csv(home+'data/AD_CpG/selected_450k_pos_winid.csv',index=False)
     logger.info('450K AD sites window ids are saved in {}'.format(home+'data/AD_CpG/selected_450k_pos_winid.csv'))
-if not os.path.exists(home+'data/AD_CpG/all_450k_sites_winid.csv'):
+if type_name == 'amyloid': ##only save once
     all_450k_sites_with_winid.to_csv(home+'data/AD_CpG/all_450k_sites_winid.csv',index=False)
     with pd.HDFStore(home+'data/AD_CpG/all_450k_sites_winid','w') as h5s:
         h5s['all_450k_sites_winid'] = all_450k_sites_with_winid 

@@ -45,8 +45,8 @@ if up_sampling:
     wtf_lo = 0.05 if dataset=="Cd" else 0.2
     wtf_hi = 0.1 if dataset=="Cd" else 0.3
 else:
-    wtf_lo = 1.0/3 if dataset=="Cd" else 1 
-    wtf_hi = 0.5 if dataset=="Cd" else 1.5
+    wtf_lo = 1.0/3 if dataset=="Cd" else 0.4 
+    wtf_hi = 0.5 if dataset=="Cd" else 0.45
     
 logger.info('Sample weights rescaling factor lower boundary is {}, higher boundary is {}'.format(wtf_lo,wtf_hi))
 
@@ -85,6 +85,8 @@ for method,best_estimator in ensemble_hyopt.best_estimators_.items():
     logger.info('fitting best estimator of method: {}'.format(method))
     best_estimator.fit(total_x,total_label,total_sample_weights)
 
+if os.path.exists(pred_probs):
+    os.remove(pred_probs)    
 for i in np.arange(len(ranges)-1):
     start = ranges[i]
     end = ranges[i+1]
