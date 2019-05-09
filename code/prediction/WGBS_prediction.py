@@ -103,9 +103,9 @@ for i in np.arange(len(ranges)-1):
     pred = ensemble_hyopt.predict(wgbs_data)
     pred_prob = ensemble_hyopt.predict_proba(wgbs_data)
     pred_prob = pd.DataFrame(pred_prob,columns=['negative','positive'])
-    target_sites = pred_prob.sort_values(['positive'],ascending=False)#.query('positive >= 0.5')
-    target_sites_coordinate = wgbs_all_data.loc[target_sites.index,['chr','coordinate']]
-    target_sites = target_sites.join(target_sites_coordinate)
+    target_sites_coordinate = wgbs_all_data[['chr','coordinate']]
+    target_sites = pd.concat([target_sites_coordinate.reset_index(drop=True),pred_prob.reset_index(drop=True)],axis=1)
+    target_sites = target_sites.sort_values(['positive'],ascending=False)#.query('positive >= 0.5')
     with pd.HDFStore(pred_probs,'a') as h5s:
         h5s[str(start)+'_'+str(end)] = target_sites
         logger.info("predicted probs of range {}-{} are saved in {}".format(start,end,pred_probs))

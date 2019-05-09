@@ -236,10 +236,9 @@ for i in np.arange(len(ranges)-1):
     else:      
         genocanyon_scores = extra_storage+'GenoCanyon/Results/'+dataset+'/selected_site_scores.txt'
         data_dir=extra_storage+'GenoCanyon/Results/'+dataset+'/'
-        if (not os.path.exists(genocanyon_scores)) or (not check_genocaynon(genocanyon_scores,sites_file)):
-            logger.info('Genocaynon score file error, running GenoCanyon R script to regenerate Genocaynon scores for {} ...'.format(sites_file))
-            subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
-            logger.info('Complete generating genocaynon score files for {}'.format(sites_file))
+        logger.info('Running GenoCanyon R script to regenerate Genocaynon scores for {} of range from {} to {} ...'.format(sites_file,start,end))
+        subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
+        logger.info('Complete generating genocaynon score files for {}'.format(sites_file))
         genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
         logger.info("Start processing Genocaynon features for wgbs sites range %d to %d"%(start,end))
         genocanyon_preprocess.process('selected_site_scores.txt')
