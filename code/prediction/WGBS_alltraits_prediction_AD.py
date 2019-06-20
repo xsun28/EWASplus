@@ -20,8 +20,8 @@ parser.add_argument('-m',required=False,default=['LogisticRegression','xgbooster
 args = parser.parse_args()
 methods = '-'.join(args.methods)
 
-pred_probs = [home+'data/'+dataset+'/pred_probs' for dataset in ['AD_CpG/amyloidwith','AD_CpG/ceradwith','AD_CpG/tangleswith','AD_CpG/gpathwith','AD_CpG/braakwith','AD_CpG/cogdecwith']]
-traits = ['amyloidwith','ceradwith','tangleswith','gpathwith','braakwith','cogdecwith']
+pred_probs = [home+'data/'+dataset+'/pred_probs' for dataset in ['AD_CpG/amyloidwith','AD_CpG/ceradwith','AD_CpG/ceradafwith','AD_CpG/tangleswith','AD_CpG/gpathwith','AD_CpG/braakwith','AD_CpG/cogdecwith']]
+traits = ['amyloidwith','ceradwith','ceradafwith','tangleswith','gpathwith','braakwith','cogdecwith']
 dataset_common_predictions = None
 for pred_prob,trait in zip(pred_probs,traits):
     first = True
@@ -102,7 +102,7 @@ top500_nearest_cpgs_weighted.to_csv(home+'data/AD_CpG/common_top500_weighted_nea
 
 
 ####all 450k sites predicted probs by all traits
-pred_probs = [home+'data/'+dataset+'/pred_probs_450k' for dataset in ['AD_CpG/amyloidwith','AD_CpG/ceradwith','AD_CpG/tangleswith','AD_CpG/gpathwith','AD_CpG/braakwith','AD_CpG/cogdecwith']]
+pred_probs = [home+'data/'+dataset+'/pred_probs_450k' for dataset in ['AD_CpG/amyloidwith','AD_CpG/ceradwith','AD_CpG/ceradafwith','AD_CpG/tangleswith','AD_CpG/gpathwith','AD_CpG/braakwith','AD_CpG/cogdecwith']]
 #traits = ['amyloidwith','ceradwith','tangleswith','gpathwith','braakwith','cogdecwith']
 first = True
 for pred_prob,trait in zip(pred_probs,traits):
@@ -120,7 +120,7 @@ with pd.HDFStore(all_450k_features,'r') as h5s:
     all_450k_data = h5s['all_450k_features']
 all_probs_450k = pd.merge(all_probs_450k,all_450k_data[['id','chr','coordinate']],on=['chr','coordinate'],how='left')
 
-trait_pvalues = [home+'data/'+dataset+'/all_450k_sites_winid.csv' for dataset in ['AD_CpG/amyloidwith','AD_CpG/ceradwith','AD_CpG/tangleswith','AD_CpG/gpathwith','AD_CpG/braakwith','AD_CpG/cogdecwith']]
+trait_pvalues = [home+'data/'+dataset+'/all_450k_sites_winid.csv' for dataset in ['AD_CpG/amyloidwith','AD_CpG/ceradwith','AD_CpG/ceradafwith','AD_CpG/tangleswith','AD_CpG/gpathwith','AD_CpG/braakwith','AD_CpG/cogdecwith']]
 all_probs_450k['mean_positive'] = all_probs_450k[['positive_'+trait for trait in traits]].mean(axis=1)
 tenfold_test_results = {}
 weight_scale = 'f1' #'auc','recall','precision','f1','accuracy'

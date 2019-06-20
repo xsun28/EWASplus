@@ -25,8 +25,10 @@ class GWAVA_Preprocess(object):
         we need to use the same logic to treat selected sites file
         """
         all_sites_df = pd.read_csv(self.sites_file)
+        chr_pos = all_sites_df[['chr','coordinate']]
+        chr_pos['coordinate'] = chr_pos['coordinate'].astype('i8')
         all_sites_df['chr'] = 'chr' + all_sites_df['chr'].apply(lambda x: convert_num_to_chrstr(x))
-        #all_sites_df.sort_values(by=['chr', 'coordinate'], inplace=True)
+        all_sites_df.sort_values(by=['chr', 'coordinate'], inplace=True)
         all_sites_df.rename({'coordinate': 'base_end'}, axis='columns', inplace=True)
         all_sites_df['base_start'] = all_sites_df['base_end'] - 1
         all_sites_df['base_start'] = all_sites_df['base_start'].astype('i8')
@@ -47,5 +49,6 @@ class GWAVA_Preprocess(object):
                     'GWAVA_dist_to_nearest_snp': 'mean'
         }
         gwava_scores_df = gwava_scores_df.groupby(['chr', 'coordinate']).agg(agg_dict).reset_index()
+        gwava_scores_df = pd.merge(chr_pos,gwava_scores_df,on=['chr','coordinate'],how='left').reset_index(drop=True)
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
             h5s['GWAVA'] = pd.DataFrame(gwava_scores_df) 

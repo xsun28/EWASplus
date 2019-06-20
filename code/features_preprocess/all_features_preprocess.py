@@ -90,9 +90,8 @@ eigen_preprocess.process()
 
 genocanyon_scores = extra_storage+'GenoCanyon/Results/'+dataset+'/selected_site_scores.txt'
 data_dir=extra_storage+'GenoCanyon/Results/'+dataset+'/'
-if not (os.path.exists(genocanyon_scores) and check_genocaynon(genocanyon_scores,sites_file)):
-    print('Running GenoCanyon R script...')
-    subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
+print('Running GenoCanyon R script...')
+subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"FALSE",home,extra_storage,dataset])
 genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
 genocanyon_preprocess.process('selected_site_scores.txt')
 

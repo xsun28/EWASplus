@@ -139,14 +139,14 @@ class FeatureSelection(BaseEstimator,TransformerMixin):
             lsvc.fit(X,y,sample_weight = self.sample_weights)
             self.selected_features['linear_SVC'] = pd.DataFrame(X.columns[SelectFromModel(lsvc,prefit=True).get_support()],columns=['feature'])
             print(lsvc.coef_*X_std.values)
-            lsvc_scores = pd.DataFrame({'feature':X.columns.values,'score':(lsvc.coef_*X_std.values)[0]})
+            lsvc_scores = pd.DataFrame({'feature':X.columns.values,'score':np.abs((lsvc.coef_*X_std.values)[0])})
             self.feature_scores['linear_SVC'] = lsvc_scores.query('score>0')
         if self.selected_methods['logistic_regression']:
             if self.class_num == 2:
                 log_reg = self.initialized_methods['logistic_regression']
                 log_reg.fit(X,y,sample_weight = self.sample_weights)
                 self.selected_features['logistic_regression'] = pd.DataFrame(X.columns[SelectFromModel(log_reg,prefit=True).get_support()],columns=['feature'])
-                log_reg_scores = pd.DataFrame({'feature':X.columns.values,'score':(log_reg.coef_*X_std.values)[0]})
+                log_reg_scores = pd.DataFrame({'feature':X.columns.values,'score':np.abs((log_reg.coef_*X_std.values)[0])})
                 self.feature_scores['logistic_regression'] = log_reg_scores.query('score>0')
             else:
                 log_selected_features = {key:self.get_features_logistic_regression(X,y,key,classes) for key, classes in zip(['01','12','02'],[(0,1),(1,2),(0,2)]) }

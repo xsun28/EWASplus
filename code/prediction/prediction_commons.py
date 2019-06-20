@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 tss_start = 0
-tss_end = 14274574
+tss_end = 26573858
 
 #---------------------------------------------------------------------------
 def nearest_tss(tss,sites_df):

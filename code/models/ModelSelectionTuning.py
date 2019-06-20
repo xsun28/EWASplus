@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(description='Model Selection and Tuning for AD/
 parser.add_argument('-u',required=False,default='True',help='upsampling data',dest='upsampling',metavar='True or False?')
 args = parser.parse_args()
 up_sampling = (args.upsampling == 'True')
-
+logger.info(f"Training sites with positive samples upsampled: {up_sampling}")
 
 ##features selecetd by traditional methods
 dataset = commons.dataset
@@ -25,15 +25,16 @@ if dataset == 'AD_CpG':
     type_name = commons.type_name  ## amyloid, cerad, tangles
     with_cell_type = commons.with_cell_type ## with or without
     dataset = dataset+'/'+type_name+with_cell_type
-
+logger.info(f"current model tuning trait is {dataset}")
 if up_sampling:
     wtf_lo = 0.05 if dataset=="Cd" else 0.2
     wtf_hi = 0.1 if dataset=="Cd" else 0.3
+    logger.info(f'upsampled sample weight factor range is from {wtf_lo} to {wtf_hi}')
 else:
     wtf_lo = 1.0/3 if dataset=="Cd" else 0.4 
     wtf_hi = 0.5 if dataset=="Cd" else 0.45
-    
-log_dir = home+'logs/'
+    logger.info(f'not upsampled sample weight factor range is from {wtf_lo} to {wtf_hi}')
+
 with pd.HDFStore(home+'data/'+dataset+'/selected_features','r') as h5s:
     train_x =h5s['train_x'] 
     train_label = h5s['train_label'] 
@@ -41,8 +42,8 @@ with pd.HDFStore(home+'data/'+dataset+'/selected_features','r') as h5s:
     test_label = h5s['test_label']
     sample_weights_train = h5s['sample_weights_train'] 
     sample_weights_test = h5s['sample_weights_test']
-print('Features used in training are from traditional feature selection')
-
+logger.info(f"max sample weight ratio in train dataset:{sample_weights_train.max()/sample_weights_train.min()}")
+logger.info(f"max sample weight ratio in test dataset:{sample_weights_test.max()/sample_weights_test.min()}")
 
 #10-fold test using the ensemble method
 total_x = pd.concat([train_x,test_x],ignore_index=True)
@@ -50,7 +51,9 @@ total_label = pd.concat([train_label,test_label],ignore_index=True)
 total_sample_weights = pd.concat([sample_weights_train,sample_weights_test],ignore_index=True)
 
 methods_cv = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier']
+logger.info(f"models tested are {methods_cv}")
 if_hyperopt = True
+logger.info(f"using hyperopt to train models:{if_hyperopt}")
 if if_hyperopt:
     params_cv = get_hyperopt_params(methods_cv,wtf_lo=wtf_lo,wtf_hi=wtf_hi)
 else:

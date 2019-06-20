@@ -6,19 +6,16 @@ home = commons.home
 import pandas as pd
 import numpy as np
 from features_selection import Feature_Selection as FS
-from log import Logger
 from features_selection import  WilcoxonRankSums
 from sklearn.externals import joblib
 from features_selection import feature_selection_commons as fsc
-
+logger = commons.logger
 dataset = commons.dataset
 if dataset == 'AD_CpG':
     type_name = commons.type_name  ## amyloid, cerad, tangles
     with_cell_type = commons.with_cell_type ## with or without
     dataset = dataset+'/'+type_name+with_cell_type
 
-log_dir = home+'logs/'
-logger = Logger.Logger(log_dir,False).get_logger()
 with pd.HDFStore(home+'data/'+dataset+'/all_features','r') as h5s:
     all_data = h5s['all_features']
 all_data['beta_sign'] = all_data['label']
@@ -65,12 +62,11 @@ test_label.reset_index(drop=True,inplace=True)
 sample_weights_train = commons.sample_weights(train_x,train_label,factor=1)
 sample_weights_test = commons.sample_weights(test_x,test_label,factor=1)
 weight_min_max_ratio = sample_weights_train.max()/sample_weights_train.min()
-print('trait %s weight max ratio: %f',type_name+with_cell_type,weight_min_max_ratio)
+logger.info(f'trait {type_name+with_cell_type} weight max ratio: {weight_min_max_ratio}')
 train_x.drop(['pvalue'],axis=1,inplace=True)
 test_x.drop(['pvalue'],axis=1,inplace=True)
 fs_sample_weights = np.power(sample_weights_train, type_weight_factor) 
-
-print('scaled trait %s max weight ratio: %f',type_name+with_cell_type,fs_sample_weights.max()/fs_sample_weights.min())
+logger.info(f'scaled trait {type_name+with_cell_type} max weight ratio: {fs_sample_weights.max()/fs_sample_weights.min()}')
 
 methods = ['random_forest','xgboost','logistic_regression','linear_SVC']
 all_intersect = False

@@ -166,10 +166,10 @@ if tracker['genocanyon'] == 1:
 else:  
     genocanyon_scores = extra_storage+'GenoCanyon/Results/'+dataset+'/selected_site_all_450k_scores.txt'
     data_dir=extra_storage+'GenoCanyon/Results/'+dataset+'/'
-    if not (os.path.exists(genocanyon_scores) and check_genocaynon(genocanyon_scores,sites_file)):
-        logger.info('Genocaynon score file error, running GenoCanyon R script to regenerate Genocaynon scores for {} ...'.format(sites_file))
-        subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"TRUE",home,extra_storage,dataset])
-        logger.info('Complete generating genocaynon score files for {}'.format(sites_file))
+#    if not (os.path.exists(genocanyon_scores) and check_genocaynon(genocanyon_scores,sites_file)):
+    logger.info('Genocaynon score file error, running GenoCanyon R script to regenerate Genocaynon scores for {} ...'.format(sites_file))
+    subprocess.call([home+'code/features_preprocess/GenoCanyon_Preprocess.R',"TRUE",home,extra_storage,dataset])
+    logger.info('Complete generating genocaynon score files for {}'.format(sites_file))
 
     genocanyon_preprocess = GenoCanyon_Preprocess.GenoCanyon_Preprocess(data_dir=data_dir,sites_file=sites_file,additional_feature_file=additional_feature_file)
     logger.info("Start processing Genocaynon features for {} 450k sites".format(dataset))

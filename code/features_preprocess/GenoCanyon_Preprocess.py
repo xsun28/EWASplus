@@ -28,7 +28,7 @@ class GenoCanyon_Preprocess(object):
     def process(self,score_file='selected_site_scores.txt'):
         all_sites = pd.read_csv(self.sites_file)
         scores = pd.read_csv(self.data_dir+score_file,header=None)
-        genocanyon_scores = pd.DataFrame(all_sites[['chr','coordinate','winid']])
+        genocanyon_scores = pd.DataFrame(all_sites[['chr','coordinate','winid']]).reset_index(drop=True)
         genocanyon_scores['genocanyon_score'] = scores
         
         with pd.HDFStore(self.additional_feature_file,'a') as h5s:
