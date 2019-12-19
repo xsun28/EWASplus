@@ -65,9 +65,9 @@ def ploct_curves_all_traits(traits,method,types='roc_curve',title=None):
     plt.legend(loc='best')
     plt.savefig(fig_path)
         
-def plot_curves_cv(probs,label,methods,types='roc_curve'):
+def plot_curves_cv(probs,label,methods,fig_name,types='roc_curve'):
     dt = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-    fig_file_name = dataset+'_'+type_name+with_cell_type+'_10foldCV_allSitesPredProbs_'+types+'_'+dt
+    fig_file_name = fig_name+types+'_'+dt
     fig_path = os.path.join(home, 'figs', fig_file_name)
     plt.figure(figsize=(7,5))
     plt.title(types)
@@ -196,8 +196,8 @@ def scores(y,predicts,pred_probs,average='macro'):
     return score_map
 
 #---------------------------------------------------------------------------
-def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,up_sampling=False):
-    skfolds = StratifiedKFold(n_splits=10,random_state=43)
+def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,up_sampling=False,down_sampling=False):
+    skfolds = StratifiedKFold(n_splits=fold,random_state=43)
     results = []
     model_combine_scores_cv = []
     model_scores_cv = []
@@ -213,14 +213,15 @@ def cross_val_ensemble(x,y,sample_weight,methods,params,fold=10, hyperopt=True,u
         search_methods = get_train_models(models=methods)
     class_num = len(y.unique())
     for train_index,test_index in skfolds.split(x,y):
-        train_fold = x.iloc[train_index,:]
-        train_label = y[train_index]
-        sample_weight_train = sample_weight[train_index]
-        test_fold = x.iloc[test_index,:]
-        test_label = y[test_index]
-        sample_weight_test = sample_weight[test_index]
+        train_fold = x.iloc[train_index,:].reset_index(drop=True)
+        train_label = y[train_index].reset_index(drop=True)
+        sample_weight_train = sample_weight[train_index].reset_index(drop=True)
+        test_fold = x.iloc[test_index,:].reset_index(drop=True)
+        test_label = y[test_index].reset_index(drop=True)
+        sample_weight_test = sample_weight[test_index].reset_index(drop=True)
         if up_sampling:
             train_fold,train_label,sample_weight_train = upsampling(train_fold,train_label,sample_weight_train,fold=9)
+        if down_sampling:
             test_fold,test_label,sample_weight_test = downsampling(test_fold,test_label,sample_weight_test)
         if not hyperopt:            
             for param_l in params.values():
