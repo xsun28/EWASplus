@@ -33,11 +33,12 @@ if dataset == 'AD_CpG':
     type_name = commons.type_name  ## amyloid, cerad, tangles
     with_cell_type = commons.with_cell_type ## with or without
 
-def ploct_curves_all_traits(traits,method,types='roc_curve',title=None):
+def ploct_curves_all_traits(traits,method,types='roc_curve',title=None,imbalanced=True):
+    imbalanced_marker = "imbalanced_" if imbalanced else ""
     dt = datetime.utcnow().strftime("%Y%m%d%H%M%S")
     colors = ['r','b','g','k','c','m','y']
     methods_cv = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier']
-    fig_file_name = 'all_traits_10foldCV_'+method+'_allSitesPredProbs_'+types+'_'+dt
+    fig_file_name = f'{imbalanced_marker}all_traits_10foldCV_'+method+'_allSitesPredProbs_'+types+'_'+dt
     fig_path = os.path.join(home, 'figs', fig_file_name)
     plt.figure(figsize=(7,5))
     if title is None:
@@ -47,7 +48,7 @@ def ploct_curves_all_traits(traits,method,types='roc_curve',title=None):
     plt.axis([0,1,0,1])
     lw = 2
     for trait,color in zip(traits,colors[:len(traits)]):
-        pred_probs_all_fold = joblib.load(home+'data/AD_CpG/'+trait+'/pred_probs_all_fold.pkl')
+        pred_probs_all_fold = joblib.load(f'{home}data/AD_CpG/{trait}/{imbalanced_marker}pred_probs_all_fold.pkl')
         label = pd.Series(pred_probs_all_fold['label'])
         all_results,probs = methods_combination_results(methods_cv,pred_probs_all_fold,label)
         if types == 'precision_recall_curve':       
