@@ -38,7 +38,7 @@ def ploct_curves_all_traits(traits,method,types='roc_curve',title=None,imbalance
     dt = datetime.utcnow().strftime("%Y%m%d%H%M%S")
     colors = ['r','b','g','k','c','m','y']
     methods_cv = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier']
-    fig_file_name = f'{imbalanced_marker}all_traits_10foldCV_'+method+'_allSitesPredProbs_'+types+'_'+dt
+    fig_file_name = f'{imbalanced_marker}all_traits_10foldCV_{method}_allSitesPredProbs_{types}_{dt}'
     fig_path = os.path.join(home, 'figs', fig_file_name)
     plt.figure(figsize=(7,5))
     if title is None:
