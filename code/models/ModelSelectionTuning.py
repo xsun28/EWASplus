@@ -15,9 +15,12 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Model Selection and Tuning for AD/Cd')
 parser.add_argument('-u',required=False,default='True',help='upsampling data',dest='upsampling',metavar='True or False?')
+parser.add_argument('-d',required=False,default='True',help='downsampling data',dest='downsampling',metavar='True or False?')
 args = parser.parse_args()
 up_sampling = (args.upsampling == 'True')
-logger.info(f"Training sites with positive samples upsampled: {up_sampling}")
+down_sampling = (args.downsampling == 'True')
+logger.info(f"Training sites with positive samples upsampled: {up_sampling}, and test sites with negative samples downsampled:{down_sampling}")
+down_sampling_marker = '' if down_sampling else 'imbalanced_' 
 
 ##features selecetd by traditional methods
 dataset = commons.dataset
@@ -58,17 +61,17 @@ if if_hyperopt:
     params_cv = get_hyperopt_params(methods_cv,wtf_lo=wtf_lo,wtf_hi=wtf_hi)
 else:
     params_cv = get_search_params(methods=methods_cv)
-tenfold_crossval_scores,model_combine_scores_cv,model_scores_cv,best_params_cv,pred_probs_cv,predicts_cv,pred_probs_all_fold = cross_val_ensemble(total_x,total_label,total_sample_weights,methods_cv,params_cv,fold=10,hyperopt=if_hyperopt,up_sampling=up_sampling)
+tenfold_crossval_scores,model_combine_scores_cv,model_scores_cv,best_params_cv,pred_probs_cv,predicts_cv,pred_probs_all_fold = cross_val_ensemble(total_x,total_label,total_sample_weights,methods_cv,params_cv,fold=10,hyperopt=if_hyperopt,up_sampling=up_sampling,down_sampling=down_sampling)
 print('10-fold CV of ensemble method results:\n '+tenfold_crossval_scores.to_string())
 
 
-joblib.dump(tenfold_crossval_scores,home+'data/'+dataset+'/tenfold_crossval_scores.pkl')
-joblib.dump(model_combine_scores_cv,home+'data/'+dataset+'/model_combine_scores_cv.pkl')
-joblib.dump(model_scores_cv,home+'data/'+dataset+'/model_scores_cv.pkl')
-joblib.dump(best_params_cv,home+'data/'+dataset+'/best_params_cv.pkl')
-joblib.dump(pred_probs_cv,home+'data/'+dataset+'/pred_probs_cv.pkl')
-joblib.dump(predicts_cv,home+'data/'+dataset+'/predicts_cv.pkl')
-joblib.dump(pred_probs_all_fold,home+'data/'+dataset+'/pred_probs_all_fold.pkl')
+joblib.dump(tenfold_crossval_scores,f'{home}data/{dataset}/{down_sampling_marker}tenfold_crossval_scores.pkl')
+joblib.dump(model_combine_scores_cv,f'{home}data/{dataset}/{down_sampling_marker}model_combine_scores_cv.pkl')
+joblib.dump(model_scores_cv,f'{home}data/{dataset}/{down_sampling_marker}model_scores_cv.pkl')
+joblib.dump(best_params_cv,f'{home}data/{dataset}/{down_sampling_marker}best_params_cv.pkl')
+joblib.dump(pred_probs_cv,f'{home}data/{dataset}/{down_sampling_marker}pred_probs_cv.pkl')
+joblib.dump(predicts_cv,f'{home}data/{dataset}/{down_sampling_marker}predicts_cv.pkl')
+joblib.dump(pred_probs_all_fold,f'{home}data/{dataset}/{down_sampling_marker}pred_probs_all_fold.pkl')
 
 
 predicts_dtype = ['i8']*predicts_cv.shape[1]
@@ -92,12 +95,14 @@ all_probs = pd.DataFrame(all_probs)
 print('model combination scores for '+dataset+': ')
 print(all_results)
 
-joblib.dump(all_results,home+'data/'+dataset+'/10fold_test_results.pkl')
+joblib.dump(all_results,f'{home}data/{dataset}/{down_sampling_marker}10fold_test_results.pkl')
 
 
 plot_methods = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier','LogisticRegression-xgbooster']
-plot_curves_cv(all_probs,pd.Series(pred_probs_all_fold['label']),methods=plot_methods,types='roc_curve')
-plot_curves_cv(all_probs,pd.Series(pred_probs_all_fold['label']),methods=plot_methods,types='precision_recall_curve')
+
+fig_name = f'{dataset.replace("/","_")}_{down_sampling_marker}10foldCV_allSitesPredProbs_'
+plot_curves_cv(all_probs,pd.Series(pred_probs_all_fold['label']),methods=plot_methods,fig_name=fig_name,types='roc_curve')
+plot_curves_cv(all_probs,pd.Series(pred_probs_all_fold['label']),methods=plot_methods,fig_name=fig_name,types='precision_recall_curve')
 
 ##plot all traits roc and pr curves of same method on a single plot
 #if "AD_CpG" in dataset:
