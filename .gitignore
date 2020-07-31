@@ -7,4 +7,4 @@ model/
 tensor_logs/
 tensor_model/
 code/.idea/
-*.ipynb
+**/*.ipynb
