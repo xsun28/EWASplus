@@ -171,8 +171,10 @@ This step outputs a CSV file and a HDF5 file for each trait:
 Four candidate base learners including random forest, xgboost, logistic regression with L2-regularization and SVC with linear kernel are involved in this step. The optimal  hyper-paramters for each base learner and the best combination of base base leaner are selected by running the ModelSelectionTuning.py script.
 
 ``` 
-python models/ModelSelectionTuning.py 
+python models/ModelSelectionTuning.py -u
 ```
+
+The -u option instructs the program to upsample the positive sites during the training to avoid imbalanced dataset problem. 
 
 The optimal hyper-parameters for each base classifier and and the best combination of base classifiers are selected as follows:
 
