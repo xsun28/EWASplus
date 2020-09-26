@@ -92,7 +92,7 @@ def plot_curves_cv(probs,label,methods,fig_name,types='roc_curve'):
     plt.savefig(fig_path)
 
 #----------------------------------------------------------------------------
-def get_estimators(methods,params,train_x,train_label):
+def get_estimators(methods,params,train_x,train_label,sample_weight_train):
     ensemble = eh.Ensemble(methods,params)
     ensemble.fit(train_x,train_label,sample_weight=sample_weight_train,max_iter=100)
     return ensemble
@@ -296,43 +296,43 @@ def soft_voting(model_probs):
     predicts = np.argmax(pred_probs,axis=1)
     return pred_probs,predicts    
 
-#------------------------------------------------------------------------------
-def get_search_params(methods=['LogisticRegression','RandomForestClassifier','SVC','MLPClassifier','xgbooster','tensor_DNN']):
-    params={}
-    feature_num = train_x.shape[1]
-    #class_weight = {0:1,1:30}
-    class_weight = None
-    l_param=[{'C':np.linspace(0.1, 50,20),'class_weight':[class_weight],'sample_weight':[sample_weights_train]}]
-    rf_param = [{'n_estimators':np.linspace(10,500,5,dtype='i8'),'max_depth':np.linspace(5,30,6,dtype='i8'),'min_samples_split': np.linspace(3,30,5,dtype='i8'),'min_samples_leaf': np.linspace(1,10,10,dtype='i8'),'class_weight':[class_weight],'sample_weight':[sample_weights_train]}]
-    svc_param = [{'C':np.linspace(0.01,0.2,5),'gamma':np.linspace(0.001,0.5,5),'class_weight':[class_weight],'sample_weight':[sample_weights_train]}]
-    mlp_param = [{'alpha':np.linspace(0.001,5,10),'max_iter':[3000],'hidden_layer_sizes':[(100,80,50,25,10),(200,120,80,40),(300,200,100),(400,200)]}]
-    xgb_param = [{'learning_rate':[0.1],'max_depth': np.linspace(3,21,6,dtype='i8'),'n_estimators':np.linspace(500,2000,5,dtype='i8'),'reg_lambda': np.linspace(1,50,10),'gamma':np.linspace(0.1,20,10),'class_weight':[class_weight],'sample_weight':[sample_weights_train],'search':['random',],'n_iter':[20] }]
-    dnn_param = [{'batch_normalization': [True],
-                 'l2_reg': np.linspace(0.01,5,5),                            
-                 'drop_out':np.linspace(0.1,0.8,4),
-                 'n_classes': [len(train_label.unique())],
-                 'hidden_layers': [[int(feature_num*5),int(feature_num*3),int(feature_num*1)],[int(feature_num*4),int(feature_num*3),int(feature_num*2),int(feature_num*1)],[int(feature_num*3),int(feature_num*2.5),int(feature_num*2),int(feature_num*1.5),int(feature_num*1)],[int(feature_num*6),int(feature_num*3)]],
-                 #'weight_factor':np.linspace(1,2,3),
-                 'steps':np.linspace(200,2000,10,dtype='i8'),
-                 'batch_size':[30],
-                 'scoring':['precision'],
-                 'sample_weight':[sample_weights_train],
-                 'search':['random',],
-                 'n_iter':[50]
-                 }]
-    if 'LogisticRegression' in methods:
-        params['LogisticRegression'] = l_param
-    if 'RandomForestClassifier' in methods:
-        params['RandomForestClassifier'] = rf_param
-    if 'SVC' in methods:
-        params['SVC'] = svc_param
-    if 'MLPClassifier' in methods:
-        params['MLPClassifier'] = mlp_param
-    if 'xgbooster' in methods:
-        params['xgbooster'] = xgb_param
-    if 'tensor_DNN' in methods:
-        params['tensor_DNN'] = dnn_param
-    return params
+# #------------------------------------------------------------------------------
+# def get_search_params(methods=['LogisticRegression','RandomForestClassifier','SVC','MLPClassifier','xgbooster','tensor_DNN']):
+#     params={}
+#     feature_num = train_x.shape[1]
+#     #class_weight = {0:1,1:30}
+#     class_weight = None
+#     l_param=[{'C':np.linspace(0.1, 50,20),'class_weight':[class_weight],'sample_weight':[sample_weights_train]}]
+#     rf_param = [{'n_estimators':np.linspace(10,500,5,dtype='i8'),'max_depth':np.linspace(5,30,6,dtype='i8'),'min_samples_split': np.linspace(3,30,5,dtype='i8'),'min_samples_leaf': np.linspace(1,10,10,dtype='i8'),'class_weight':[class_weight],'sample_weight':[sample_weights_train]}]
+#     svc_param = [{'C':np.linspace(0.01,0.2,5),'gamma':np.linspace(0.001,0.5,5),'class_weight':[class_weight],'sample_weight':[sample_weights_train]}]
+#     mlp_param = [{'alpha':np.linspace(0.001,5,10),'max_iter':[3000],'hidden_layer_sizes':[(100,80,50,25,10),(200,120,80,40),(300,200,100),(400,200)]}]
+#     xgb_param = [{'learning_rate':[0.1],'max_depth': np.linspace(3,21,6,dtype='i8'),'n_estimators':np.linspace(500,2000,5,dtype='i8'),'reg_lambda': np.linspace(1,50,10),'gamma':np.linspace(0.1,20,10),'class_weight':[class_weight],'sample_weight':[sample_weights_train],'search':['random',],'n_iter':[20] }]
+#     dnn_param = [{'batch_normalization': [True],
+#                  'l2_reg': np.linspace(0.01,5,5),
+#                  'drop_out':np.linspace(0.1,0.8,4),
+#                  'n_classes': [len(train_label.unique())],
+#                  'hidden_layers': [[int(feature_num*5),int(feature_num*3),int(feature_num*1)],[int(feature_num*4),int(feature_num*3),int(feature_num*2),int(feature_num*1)],[int(feature_num*3),int(feature_num*2.5),int(feature_num*2),int(feature_num*1.5),int(feature_num*1)],[int(feature_num*6),int(feature_num*3)]],
+#                  #'weight_factor':np.linspace(1,2,3),
+#                  'steps':np.linspace(200,2000,10,dtype='i8'),
+#                  'batch_size':[30],
+#                  'scoring':['precision'],
+#                  'sample_weight':[sample_weights_train],
+#                  'search':['random',],
+#                  'n_iter':[50]
+#                  }]
+#     if 'LogisticRegression' in methods:
+#         params['LogisticRegression'] = l_param
+#     if 'RandomForestClassifier' in methods:
+#         params['RandomForestClassifier'] = rf_param
+#     if 'SVC' in methods:
+#         params['SVC'] = svc_param
+#     if 'MLPClassifier' in methods:
+#         params['MLPClassifier'] = mlp_param
+#     if 'xgbooster' in methods:
+#         params['xgbooster'] = xgb_param
+#     if 'tensor_DNN' in methods:
+#         params['tensor_DNN'] = dnn_param
+#     return params
 #-----------------------------------------------------------------------------------
 def get_train_models(models=['LogisticRegression','RandomForestClassifier','SVC','MLPClassifier','xgbooster','tensor_DNN']):
     methods = []

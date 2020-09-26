@@ -55,13 +55,8 @@ total_sample_weights = pd.concat([sample_weights_train,sample_weights_test],igno
 
 methods_cv = ['LogisticRegression','SVC','xgbooster','RandomForestClassifier']
 logger.info(f"models tested are {methods_cv}")
-if_hyperopt = True
-logger.info(f"using hyperopt to train models:{if_hyperopt}")
-if if_hyperopt:
-    params_cv = get_hyperopt_params(methods_cv,wtf_lo=wtf_lo,wtf_hi=wtf_hi)
-else:
-    params_cv = get_search_params(methods=methods_cv)
-tenfold_crossval_scores,model_combine_scores_cv,model_scores_cv,best_params_cv,pred_probs_cv,predicts_cv,pred_probs_all_fold = cross_val_ensemble(total_x,total_label,total_sample_weights,methods_cv,params_cv,fold=10,hyperopt=if_hyperopt,up_sampling=up_sampling,down_sampling=down_sampling)
+params_cv = get_hyperopt_params(methods_cv,wtf_lo=wtf_lo,wtf_hi=wtf_hi)
+tenfold_crossval_scores,model_combine_scores_cv,model_scores_cv,best_params_cv,pred_probs_cv,predicts_cv,pred_probs_all_fold = cross_val_ensemble(total_x,total_label,total_sample_weights,methods_cv,params_cv,fold=10, up_sampling=up_sampling,down_sampling=down_sampling)
 print('10-fold CV of ensemble method results:\n '+tenfold_crossval_scores.to_string())
 
 
